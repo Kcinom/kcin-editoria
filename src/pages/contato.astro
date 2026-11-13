@@ -1,0 +1,119 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Contato">
+  
+  <section class="contact-hero">
+    <div class="container container-narrow">
+      <p class="section-eyebrow fade-in">Conversar</p>
+      <h1 class="contact-title fade-in">Contato</h1>
+      <p class="contact-tagline fade-in">
+        Para leitoras, autoras, parceiros editoriais e curiosos. 
+        Respondemos toda mensagem.
+      </p>
+    </div>
+  </section>
+  
+  <div class="divider-ornament">
+    <span>❦</span>
+  </div>
+  
+  <section class="contact-channels">
+    <div class="container">
+      <div class="channels-grid">
+        
+        <div class="channel-card fade-in">
+          <h3>Atelier — Capa e Diagramação</h3>
+          <p>Pedidos de orçamento, briefing de projetos, mentoria de direção visual.</p>
+          <a href="/servicos" class="link-elegant">Formulário de orçamento →</a>
+        </div>
+        
+        <div class="channel-card fade-in">
+          <h3>Contato Geral</h3>
+          <p>Dúvidas sobre livros, parcerias editoriais, imprensa.</p>
+          <a href="mailto:contato@kcineditoria.com.br" class="link-elegant">contato@kcineditoria.com.br</a>
+        </div>
+        
+        <div class="channel-card fade-in">
+          <h3>Redes Sociais</h3>
+          <p>Atualizações, bastidores e novidades das séries.</p>
+          <div class="social-grid">
+            <a href="#" class="link-elegant" target="_blank" rel="noopener">Instagram</a>
+            <a href="#" class="link-elegant" target="_blank" rel="noopener">TikTok</a>
+            <a href="#" class="link-elegant" target="_blank" rel="noopener">Threads</a>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+  
+</BaseLayout>
+
+<style>
+  .contact-hero {
+    padding: var(--space-16) 0 var(--space-12);
+    text-align: center;
+  }
+  
+  .contact-title {
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    color: var(--kcin-gold-light);
+    margin: var(--space-3) 0 var(--space-6);
+    letter-spacing: 0.05em;
+  }
+  
+  .contact-tagline {
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    color: var(--kcin-parchment);
+    line-height: 1.7;
+  }
+  
+  .contact-channels {
+    padding: var(--space-12) 0 var(--space-16);
+  }
+  
+  .channels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-6);
+  }
+  
+  .channel-card {
+    padding: var(--space-8);
+    background: rgba(26, 15, 46, 0.5);
+    border: 1px solid rgba(212, 165, 116, 0.2);
+    border-radius: var(--radius-md);
+    transition: all var(--duration-base) var(--ease);
+  }
+  
+  .channel-card:hover {
+    border-color: var(--kcin-gold);
+    transform: translateY(-4px);
+  }
+  
+  .channel-card h3 {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    color: var(--kcin-gold-light);
+    margin-bottom: var(--space-3);
+    letter-spacing: 0.1em;
+  }
+  
+  .channel-card p {
+    font-family: var(--font-serif);
+    font-size: var(--text-sm);
+    color: var(--kcin-parchment);
+    line-height: 1.7;
+    margin-bottom: var(--space-4);
+  }
+  
+  .social-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+</style>

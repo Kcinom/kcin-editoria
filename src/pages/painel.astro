@@ -1,0 +1,340 @@
+---
+// Painel do Atelier — só a Kcinom acessa (login + regras do banco).
+// Não aparece no menu e pede pros buscadores não indexarem.
+import '../styles/global.css';
+import { SUPABASE_URL, SUPABASE_KEY, EMAIL_ATELIER } from '../lib/atelier-config.js';
+---
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>Painel do Atelier | KCIN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Lora:wght@400;600&display=swap" />
+</head>
+<body>
+  <main class="painel">
+    <header class="painel-top">
+      <div>
+        <p class="section-eyebrow">Atelier KCIN</p>
+        <h1 class="painel-title">Painel de fichas</h1>
+      </div>
+      <button class="btn btn-ghost" id="sair" hidden>Sair</button>
+    </header>
+
+    <!-- LOGIN -->
+    <section id="login" class="painel-box" hidden>
+      <h2 class="box-title">Entrar</h2>
+      <form id="login-form" class="col">
+        <label class="campo"><span>E-mail</span><input type="email" id="login-email" required /></label>
+        <label class="campo"><span>Senha</span><input type="password" id="login-senha" required /></label>
+        <button class="btn" type="submit">Entrar</button>
+        <p class="msg" id="login-msg"></p>
+      </form>
+    </section>
+
+    <!-- SEM PERMISSÃO -->
+    <section id="sem-acesso" class="painel-box" hidden>
+      <p>Você entrou, mas esta conta ainda não é administradora do Atelier.</p>
+      <p class="mini">ID da conta (para liberar o acesso): <code id="meu-id"></code></p>
+    </section>
+
+    <!-- LISTA -->
+    <section id="area" hidden>
+      <nav class="filtros" id="filtros"></nav>
+      <p class="msg" id="lista-msg"></p>
+      <div id="lista" class="lista"></div>
+    </section>
+  </main>
+
+  <template id="tpl-ficha">
+    <article class="ficha">
+      <header class="ficha-top">
+        <div>
+          <h3 class="ficha-titulo"></h3>
+          <p class="ficha-sub"></p>
+        </div>
+        <span class="selo"></span>
+      </header>
+
+      <div class="ficha-grid">
+        <div class="col">
+          <dl class="dados"></dl>
+          <details class="textos"><summary>Sinopse, direção visual e referências</summary><div class="textos-corpo"></div></details>
+        </div>
+
+        <div class="col gestao">
+          <div class="preco">
+            <span class="mini">Preço sugerido</span>
+            <strong class="preco-faixa"></strong>
+            <label class="check"><input type="checkbox" data-f="cliente_exigente" /> Cliente exigente (+20%)</label>
+          </div>
+
+          <label class="campo"><span>Status</span>
+            <select data-f="status">
+              <option value="pendente">Pendente</option>
+              <option value="aceita">Aceita (aguardando sinal)</option>
+              <option value="recusada">Recusada</option>
+              <option value="em_andamento">Em andamento</option>
+              <option value="aguardando_final">Aguardando pagamento final</option>
+              <option value="concluida">Concluída</option>
+            </select>
+          </label>
+          <label class="campo"><span>Valor final (R$)</span><input type="number" step="10" min="0" data-f="valor_final" /></label>
+          <label class="campo"><span>Link do sinal (50%)</span><input type="url" data-f="link_sinal" placeholder="https://..." /></label>
+          <label class="check"><input type="checkbox" data-pago="sinal_pago_em" /> Sinal pago</label>
+          <label class="campo"><span>Link do pagamento final (50%)</span><input type="url" data-f="link_final" placeholder="https://..." /></label>
+          <label class="check"><input type="checkbox" data-pago="final_pago_em" /> Pagamento final pago</label>
+          <label class="campo"><span>Notas (só você vê)</span><textarea rows="3" data-f="notas"></textarea></label>
+
+          <div class="acoes">
+            <button class="btn" data-acao="salvar">Salvar</button>
+            <span class="msg salvo"></span>
+          </div>
+
+          <div class="emails">
+            <span class="mini">Responder por e-mail (abre seu e-mail já escrito):</span>
+            <div class="emails-botoes">
+              <a class="btn btn-ghost" data-email="aceite">Aceite + sinal</a>
+              <a class="btn btn-ghost" data-email="recusa">Recusa</a>
+              <a class="btn btn-ghost" data-email="final">Pagamento final</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <script define:vars={{ SUPABASE_URL, SUPABASE_KEY, EMAIL_ATELIER }}>
+    (async () => {
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.45.4');
+    const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+    const $ = (id) => document.getElementById(id);
+
+    const STATUS = {
+      pendente: 'Pendente', aceita: 'Aceita', recusada: 'Recusada', em_andamento: 'Em andamento',
+      aguardando_final: 'Aguardando final', concluida: 'Concluída'
+    };
+    const SERVICO = { capa: 'Capa', diagramacao: 'Diagramação', completo: 'Livro completo' };
+    const brl = (v) => v == null ? '—' : Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+    const data = (d) => d ? new Date(d).toLocaleDateString('pt-BR') : '';
+
+    let fichas = [];
+    let filtro = 'pendente';
+
+    function mostrar(secao) {
+      for (const id of ['login', 'sem-acesso', 'area']) $(id).hidden = id !== secao;
+      $('sair').hidden = secao === 'login';
+    }
+
+    async function iniciar() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return mostrar('login');
+      await carregar(session.user);
+    }
+
+    async function carregar(user) {
+      const { data: rows, error } = await sb.from('atelier_fichas').select('*').order('created_at', { ascending: false });
+      if (error) { mostrar('area'); $('lista-msg').textContent = 'Erro: ' + error.message; return; }
+      fichas = rows;
+      $('meu-id').textContent = user.id;
+      mostrar('area');
+      desenharFiltros();
+      desenharLista();
+      if (rows.length === 0) {
+        $('lista-msg').innerHTML = 'Nenhuma ficha por aqui. Se você acabou de criar a conta e já existem fichas, ' +
+          'sua conta ainda não foi liberada como administradora (ID: <code>' + user.id + '</code>).';
+      }
+    }
+
+    function desenharFiltros() {
+      const cont = { todas: fichas.length };
+      for (const f of fichas) cont[f.status] = (cont[f.status] || 0) + 1;
+      const nav = $('filtros');
+      nav.innerHTML = '';
+      for (const [k, nome] of [['pendente', 'Pendentes'], ['aceita', 'Aceitas'], ['em_andamento', 'Em andamento'],
+                               ['aguardando_final', 'Aguardando final'], ['concluida', 'Concluídas'], ['recusada', 'Recusadas'], ['todas', 'Todas']]) {
+        const b = document.createElement('button');
+        b.className = 'filtro' + (filtro === k ? ' ativo' : '');
+        b.textContent = `${nome} (${cont[k] || 0})`;
+        b.onclick = () => { filtro = k; desenharFiltros(); desenharLista(); };
+        nav.appendChild(b);
+      }
+    }
+
+    function addDado(dl, rotulo, valor) {
+      if (valor == null || valor === '') return;
+      const dt = document.createElement('dt'); dt.textContent = rotulo;
+      const dd = document.createElement('dd'); dd.textContent = valor;
+      dl.append(dt, dd);
+    }
+
+    function addTexto(box, rotulo, valor) {
+      if (!valor) return;
+      const h = document.createElement('p'); h.className = 'mini'; h.textContent = rotulo;
+      const p = document.createElement('p'); p.className = 'texto'; p.textContent = valor;
+      box.append(h, p);
+    }
+
+    function emailLink(f, tipo) {
+      const valor = f.valor_final ?? f.estimativa_max;
+      const metade = valor != null ? brl(Math.round(valor / 2)) : '—';
+      let assunto, corpo;
+      if (tipo === 'aceite') {
+        assunto = `Atelier KCIN — "${f.titulo}" aceito`;
+        corpo = `Olá, ${f.nome}!\n\nObrigada por enviar "${f.titulo}" ao Atelier KCIN. Fico feliz em dizer que o projeto foi aceito.\n\n` +
+          `Valor final: ${brl(valor)}\nSinal (50%): ${metade}\n\nPara começar, é só pagar o sinal por este link:\n${f.link_sinal || '[COLE O LINK DO SINAL]'}\n\n` +
+          `Assim que o pagamento for confirmado, o projeto entra na agenda e eu te envio as primeiras prévias por e-mail.\n\nUm abraço,\nKcinom Nilpoj\nAtelier KCIN`;
+      } else if (tipo === 'recusa') {
+        assunto = `Atelier KCIN — sobre "${f.titulo}"`;
+        corpo = `Olá, ${f.nome}!\n\nObrigada pelo interesse no Atelier KCIN e por compartilhar "${f.titulo}".\n\n` +
+          `Infelizmente não vou conseguir assumir este projeto agora. Desejo muito sucesso no lançamento!\n\nUm abraço,\nKcinom Nilpoj\nAtelier KCIN`;
+      } else {
+        assunto = `Atelier KCIN — "${f.titulo}" pronto`;
+        corpo = `Olá, ${f.nome}!\n\n"${f.titulo}" está finalizado!\n\nPara receber os arquivos finais, falta só a segunda parte do pagamento (50%): ${metade}\n` +
+          `${f.link_final || '[COLE O LINK DO PAGAMENTO FINAL]'}\n\nAssim que confirmar, envio tudo pronto para a Amazon KDP.\n\nUm abraço,\nKcinom Nilpoj\nAtelier KCIN`;
+      }
+      return `mailto:${encodeURIComponent(f.email)}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
+    }
+
+    function desenharLista() {
+      const lista = $('lista');
+      lista.innerHTML = '';
+      const vis = filtro === 'todas' ? fichas : fichas.filter(f => f.status === filtro);
+      if (fichas.length) $('lista-msg').textContent = vis.length ? '' : 'Nenhuma ficha nesta aba.';
+      const tpl = $('tpl-ficha');
+
+      for (const f of vis) {
+        const el = tpl.content.firstElementChild.cloneNode(true);
+        el.querySelector('.ficha-titulo').textContent = f.titulo;
+        el.querySelector('.ficha-sub').textContent = `${f.nome} · ${f.email} · enviada em ${data(f.created_at)}`;
+        const selo = el.querySelector('.selo');
+        selo.textContent = STATUS[f.status]; selo.dataset.status = f.status;
+
+        const dl = el.querySelector('.dados');
+        addDado(dl, 'Serviço', SERVICO[f.servico]);
+        addDado(dl, 'Capa', f.tipo_capa === 'wrap' ? 'Wrap (impressão)' : f.tipo_capa === 'ebook' ? 'Só frente (ebook)' : null);
+        addDado(dl, 'Páginas', f.paginas);
+        addDado(dl, 'Volumes', f.volumes);
+        addDado(dl, 'Prazo', f.urgente ? 'Urgente' : 'Normal');
+        addDado(dl, 'Data desejada', f.data_desejada);
+        addDado(dl, 'Gênero', f.genero);
+        addDado(dl, 'Nome na capa', f.nome_capa);
+        addDado(dl, 'Manuscrito', f.manuscrito);
+
+        const tx = el.querySelector('.textos-corpo');
+        addTexto(tx, 'Sinopse', f.sinopse);
+        addTexto(tx, 'Direção visual', f.direcao_visual);
+        addTexto(tx, 'Referências', f.referencias);
+
+        el.querySelector('.preco-faixa').textContent = `${brl(f.estimativa_min)} – ${brl(f.estimativa_max)}`;
+
+        for (const inp of el.querySelectorAll('[data-f]')) {
+          const v = f[inp.dataset.f];
+          if (inp.type === 'checkbox') inp.checked = !!v; else inp.value = v ?? '';
+        }
+        for (const inp of el.querySelectorAll('[data-pago]')) inp.checked = !!f[inp.dataset.pago];
+
+        for (const a of el.querySelectorAll('[data-email]')) {
+          a.onclick = () => { a.href = emailLink(f, a.dataset.email); };
+        }
+
+        el.querySelector('[data-acao="salvar"]').onclick = async (ev) => {
+          const btn = ev.currentTarget; const msg = el.querySelector('.salvo');
+          const mud = {};
+          for (const inp of el.querySelectorAll('[data-f]')) {
+            const k = inp.dataset.f;
+            if (inp.type === 'checkbox') mud[k] = inp.checked;
+            else if (inp.type === 'number') mud[k] = inp.value === '' ? null : Number(inp.value);
+            else mud[k] = inp.value.trim() === '' ? null : inp.value.trim();
+          }
+          for (const inp of el.querySelectorAll('[data-pago]')) {
+            const k = inp.dataset.pago;
+            mud[k] = inp.checked ? (f[k] || new Date().toISOString()) : null;
+          }
+          if (f.status === 'pendente' && mud.status !== 'pendente' && !f.respondido_em) mud.respondido_em = new Date().toISOString();
+
+          btn.disabled = true; msg.textContent = 'Salvando...';
+          const { data: rows, error } = await sb.from('atelier_fichas').update(mud).eq('id', f.id).select();
+          btn.disabled = false;
+          if (error || !rows?.length) { msg.textContent = 'Erro ao salvar' + (error ? ': ' + error.message : ' (sem permissão)'); return; }
+          Object.assign(f, rows[0]);
+          msg.textContent = 'Salvo ✓';
+          desenharFiltros();
+          if (filtro !== 'todas' && f.status !== filtro) desenharLista();
+          else el.querySelector('.preco-faixa').textContent = `${brl(f.estimativa_min)} – ${brl(f.estimativa_max)}`;
+          selo.textContent = STATUS[f.status]; selo.dataset.status = f.status;
+        };
+
+        lista.appendChild(el);
+      }
+    }
+
+    $('login-form').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      $('login-msg').textContent = 'Entrando...';
+      const { data, error } = await sb.auth.signInWithPassword({ email: $('login-email').value, password: $('login-senha').value });
+      if (error) { $('login-msg').textContent = 'E-mail ou senha incorretos.'; return; }
+      $('login-msg').textContent = '';
+      await carregar(data.user);
+    });
+
+    $('sair').onclick = async () => { await sb.auth.signOut(); fichas = []; mostrar('login'); };
+
+    iniciar();
+    })();
+  </script>
+
+  <style>
+    .painel { max-width: 1100px; margin: 0 auto; padding: var(--space-8) var(--space-4) var(--space-16); }
+    .painel-top { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--space-4); margin-bottom: var(--space-8); }
+    .painel-title { font-size: var(--text-2xl); margin: 0; }
+    .painel-box { max-width: 420px; margin: var(--space-12) auto; padding: var(--space-8); border: 1px solid var(--kcin-gold-dim); border-radius: var(--radius-md); }
+    .box-title { font-size: var(--text-xl); margin-bottom: var(--space-4); }
+    .col { display: flex; flex-direction: column; gap: var(--space-3); }
+    .campo { display: flex; flex-direction: column; gap: var(--space-1); }
+    .campo span, .mini { font-family: var(--font-display); font-size: var(--text-xs); letter-spacing: 0.15em; text-transform: uppercase; color: var(--kcin-gold); }
+    .campo input, .campo select, .campo textarea {
+      font-family: var(--font-serif); font-size: var(--text-base); padding: var(--space-2) var(--space-3);
+      background: rgba(10, 6, 18, 0.6); border: 1px solid var(--kcin-gold-dim); color: var(--kcin-parchment); border-radius: var(--radius-sm);
+    }
+    .check { display: flex; gap: var(--space-2); align-items: center; font-family: var(--font-serif); color: var(--kcin-parchment); cursor: pointer; }
+    .check input { accent-color: var(--kcin-gold); }
+    .msg { font-family: var(--font-serif); color: var(--kcin-gold-light); margin: 0; min-height: 1.2em; }
+    code { font-size: 0.85em; color: var(--kcin-gold-light); word-break: break-all; }
+
+    .filtros { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-6); }
+    .filtro { font-family: var(--font-display); font-size: var(--text-xs); letter-spacing: 0.1em; padding: var(--space-2) var(--space-4);
+      background: transparent; color: var(--kcin-gold-light); border: 1px solid var(--kcin-gold-dim); border-radius: 100px; cursor: pointer; }
+    .filtro.ativo { background: var(--kcin-gold); color: var(--kcin-black); border-color: var(--kcin-gold); }
+
+    .lista { display: flex; flex-direction: column; gap: var(--space-6); }
+    .ficha { padding: var(--space-6); border: 1px solid rgba(212, 165, 116, 0.25); border-radius: var(--radius-md); background: rgba(26, 15, 46, 0.5); }
+    .ficha-top { display: flex; justify-content: space-between; gap: var(--space-4); align-items: flex-start; margin-bottom: var(--space-4); }
+    .ficha-titulo { font-size: var(--text-xl); margin: 0; }
+    .ficha-sub { font-family: var(--font-serif); color: var(--kcin-ash); margin: var(--space-1) 0 0; }
+    .selo { font-family: var(--font-display); font-size: var(--text-xs); letter-spacing: 0.1em; padding: var(--space-1) var(--space-3); border-radius: 100px;
+      border: 1px solid var(--kcin-gold); color: var(--kcin-gold); white-space: nowrap; }
+    .selo[data-status="pendente"] { background: var(--kcin-gold); color: var(--kcin-black); }
+    .selo[data-status="recusada"] { border-color: var(--kcin-ash); color: var(--kcin-ash); }
+    .ficha-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-8); }
+    @media (max-width: 760px) { .ficha-grid { grid-template-columns: 1fr; } .painel-top { flex-direction: column; align-items: flex-start; } }
+    .dados { display: grid; grid-template-columns: auto 1fr; gap: var(--space-1) var(--space-4); margin: 0; font-family: var(--font-serif); }
+    .dados dt { color: var(--kcin-gold); }
+    .dados dd { margin: 0; color: var(--kcin-parchment); word-break: break-word; }
+    .textos summary { cursor: pointer; font-family: var(--font-serif); color: var(--kcin-gold-light); }
+    .texto { font-family: var(--font-serif); color: var(--kcin-parchment); white-space: pre-wrap; margin: 0 0 var(--space-3); }
+    .preco { padding: var(--space-4); border: 1px solid var(--kcin-gold); border-radius: var(--radius-sm); display: flex; flex-direction: column; gap: var(--space-2); }
+    .preco-faixa { font-family: var(--font-display); font-size: var(--text-xl); color: var(--kcin-gold-light); font-weight: 500; }
+    .acoes { display: flex; align-items: center; gap: var(--space-4); }
+    .emails { border-top: 1px solid rgba(212, 165, 116, 0.15); padding-top: var(--space-3); }
+    .emails-botoes { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-2); }
+    .emails-botoes .btn { padding: var(--space-2) var(--space-4); font-size: var(--text-xs); }
+  </style>
+</body>
+</html>

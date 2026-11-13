@@ -1,0 +1,125 @@
+---
+export interface Props {
+  name: string;
+  description: string;
+  slug: string;
+  color: string;
+  bookCount: number;
+  genreFilter?: string;  // gênero pra filtrar no acervo. Se omitido, usa slug
+  featuredCover?: string;
+}
+
+const { name, description, slug, color, bookCount, featuredCover, genreFilter } = Astro.props;
+
+// Link vai pro acervo com filtro de gênero aplicado
+const filterParam = genreFilter || slug;
+---
+
+<a href={`/acervo?g=${filterParam}`} class="universe-card fade-in" style={`--universe-color: ${color}`}>
+  <div class="universe-bg" style={featuredCover ? `background-image: url(${featuredCover})` : ''}></div>
+  <div class="universe-gradient"></div>
+  
+  <div class="universe-content">
+    <span class="universe-count">{bookCount} {bookCount === 1 ? 'obra' : 'obras'}</span>
+    <h3 class="universe-name">{name}</h3>
+    <p class="universe-desc">{description}</p>
+    <span class="universe-arrow">→</span>
+  </div>
+</a>
+
+<style>
+  .universe-card {
+    display: block;
+    position: relative;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    background: var(--universe-color);
+    transition: transform var(--duration-base) var(--ease-out);
+    border: 1px solid rgba(212, 165, 116, 0.15);
+  }
+  
+  .universe-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--kcin-gold);
+  }
+  
+  .universe-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.3;
+    transition: opacity var(--duration-slow) var(--ease), 
+                transform var(--duration-slow) var(--ease-out);
+    filter: blur(2px);
+  }
+  
+  .universe-card:hover .universe-bg {
+    opacity: 0.5;
+    transform: scale(1.05);
+    filter: blur(0);
+  }
+  
+  .universe-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, 
+      transparent 0%, 
+      rgba(10, 6, 18, 0.4) 40%,
+      rgba(10, 6, 18, 0.95) 100%);
+  }
+  
+  .universe-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  
+  .universe-count {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    color: var(--kcin-gold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  
+  .universe-name {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 500;
+    color: var(--kcin-gold-light);
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+    margin: 0;
+  }
+  
+  .universe-desc {
+    font-family: var(--font-serif);
+    font-size: var(--text-sm);
+    color: var(--kcin-parchment);
+    line-height: 1.5;
+    margin: 0;
+    opacity: 0.85;
+  }
+  
+  .universe-arrow {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    color: var(--kcin-gold);
+    margin-top: var(--space-2);
+    transition: transform var(--duration-base) var(--ease);
+    align-self: flex-start;
+  }
+  
+  .universe-card:hover .universe-arrow {
+    transform: translateX(8px);
+  }
+</style>

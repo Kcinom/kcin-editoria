@@ -1,0 +1,222 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BookCard from '../components/BookCard.astro';
+
+// Acervo final — 20 obras
+// Crédito autoral nos livros físicos mantém co-autoras
+// No site, exibimos apenas "Kcinom Nilpoj" (pseudônimo) pra todas
+const livros = [
+  // ===== Sussurro do Dragão (5 vol) =====
+  { title: 'O Sussurro do Dragão', cover: '/capas/sussurro-i.jpg', slug: 'sussurro-do-dragao-i', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 1, authors: ['Kcinom Nilpoj'] },
+  { title: 'O Silêncio do Dragão', cover: '/capas/sussurro-ii.jpg', slug: 'sussurro-do-dragao-ii', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 2, authors: ['Kcinom Nilpoj'] },
+  { title: 'A Fúria do Dragão', cover: '/capas/sussurro-iii.jpg', slug: 'sussurro-do-dragao-iii', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 3, authors: ['Kcinom Nilpoj'] },
+  { title: 'O Rugido do Dragão', cover: '/capas/sussurro-iv.jpg', slug: 'sussurro-do-dragao-iv', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 4, authors: ['Kcinom Nilpoj'] },
+  { title: 'O Trono do Dragão', cover: '/capas/sussurro-v.jpg', slug: 'sussurro-do-dragao-v', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 5, authors: ['Kcinom Nilpoj'] },
+  
+  // ===== Crônicas de Etéria (6 vol) =====
+  { title: 'Mikaela', subtitle: 'A Princesa', cover: '/capas/mikaela-1.jpg', slug: 'mikaela-princesa', genre: 'romantasy', series: 'Crônicas de Etéria', volume: 1, authors: ['Kcinom Nilpoj'] },
+  { title: 'Mikaela', subtitle: 'A Criminosa', cover: '/capas/mikaela-2.jpg', slug: 'mikaela-criminosa', genre: 'romantasy', series: 'Crônicas de Etéria', volume: 2, authors: ['Kcinom Nilpoj'] },
+  { title: 'Mathews', subtitle: 'O Explorador', cover: '/capas/mathews-1.jpg', slug: 'mathews-explorador', genre: 'romantasy', series: 'Crônicas de Etéria', volume: 3, authors: ['Kcinom Nilpoj'] },
+  { title: 'Mathews', subtitle: 'O Fugitivo', cover: '/capas/mathews-2.jpg', slug: 'mathews-fugitivo', genre: 'romantasy', series: 'Crônicas de Etéria', volume: 4, authors: ['Kcinom Nilpoj'] },
+  { title: 'David', subtitle: 'O Sacrifício', cover: '/capas/david-1.jpg', slug: 'david-sacrificio', genre: 'romantasy', series: 'Crônicas de Etéria', volume: 5, authors: ['Kcinom Nilpoj'] },
+  { title: 'David', subtitle: 'O Governante', cover: '/capas/david-2.jpg', slug: 'david-governante', genre: 'romantasy', series: 'Crônicas de Etéria', volume: 6, authors: ['Kcinom Nilpoj'] },
+  
+  // ===== Florestas de Kagami (4 vol) =====
+  { title: 'Florestas de Kagami', cover: '/capas/kagami-1.jpg', slug: 'kagami-i', genre: 'fantasy-lit', series: 'Florestas de Kagami', volume: 1, authors: ['Kcinom Nilpoj'] },
+  { title: 'Florestas de Kagami', cover: '/capas/kagami-2.jpg', slug: 'kagami-ii', genre: 'fantasy-lit', series: 'Florestas de Kagami', volume: 2, authors: ['Kcinom Nilpoj'] },
+  { title: 'Florestas de Kagami', cover: '/capas/kagami-3.jpg', slug: 'kagami-iii', genre: 'fantasy-lit', series: 'Florestas de Kagami', volume: 3, authors: ['Kcinom Nilpoj'] },
+  { title: 'Florestas de Kagami', cover: '/capas/kagami-4.jpg', slug: 'kagami-iv', genre: 'fantasy-lit', series: 'Florestas de Kagami', volume: 4, authors: ['Kcinom Nilpoj'] },
+  
+  // ===== Fantasy Oriental =====
+  { title: 'Rwaaj', subtitle: 'A Origem', cover: '/capas/rwaaj.jpg', slug: 'rwaaj', genre: 'fantasy-eastern', authors: ['Kcinom Nilpoj'] },
+  { title: 'Miraa de no Hansha', subtitle: 'A Decisão de Amar', cover: '/capas/miraa.jpg', slug: 'miraa-1', genre: 'fantasy-eastern', authors: ['Kcinom Nilpoj'] },
+  { title: 'Akiko', subtitle: 'A Bijuu Esquecida', cover: '/capas/akiko.jpg', slug: 'akiko', genre: 'fantasy-eastern', authors: ['Kcinom Nilpoj'], isWattpad: true, wattpadLink: 'https://www.wattpad.com/' },
+  
+  // ===== Sci-fi =====
+  { title: 'Reflex', cover: '/capas/reflex.jpg', slug: 'reflex', genre: 'scifi', authors: ['Kcinom Nilpoj'] },
+  { title: 'Memórias que Trazem a Guerra', cover: '/capas/memorias.jpg', slug: 'memorias', genre: 'scifi', authors: ['Kcinom Nilpoj'] },
+  { title: 'Fantastic War', cover: '/capas/fantastic-war.jpg', slug: 'fantastic-war', genre: 'scifi', authors: ['Kcinom Nilpoj'], isWattpad: true, wattpadLink: 'https://www.wattpad.com/' },
+  
+  // ===== Steampunk =====
+  { title: 'Ilha do Nunca', subtitle: 'Código Cronos', cover: '/capas/ilha-do-nunca.jpg', slug: 'ilha-do-nunca', genre: 'steampunk', authors: ['Kcinom Nilpoj'] },
+  { title: 'Margaretty Aiken', subtitle: 'Estagnados no tempo', cover: '/capas/margaretty.jpg', slug: 'margaretty-aiken', genre: 'steampunk', authors: ['Kcinom Nilpoj'] },
+  
+  // ===== Romance =====
+  { title: 'Like a Dream', cover: '/capas/like-a-dream.jpg', slug: 'like-a-dream', genre: 'romance', authors: ['Kcinom Nilpoj'] },
+  { title: 'Last Love', cover: '/capas/last-love.jpg', slug: 'last-love', genre: 'romance', authors: ['Kcinom Nilpoj'] },
+  { title: 'The Princess Never Maried', cover: '/capas/princess.jpg', slug: 'princess-never-maried', genre: 'romance', authors: ['Kcinom Nilpoj'] },
+  { title: 'Amélia', cover: '/capas/amelia.jpg', slug: 'amelia', genre: 'romance', authors: ['Kcinom Nilpoj'] },
+  { title: 'Love Greater Than All', cover: '/capas/love-greater.jpg', slug: 'love-greater-than-all', genre: 'romance', authors: ['Kcinom Nilpoj'] },
+  { title: 'My Lord', cover: '/capas/my-lord.jpg', slug: 'my-lord', genre: 'romance', authors: ['Kcinom Nilpoj'] },
+  
+  // ===== Não-ficção =====
+  { title: 'Explicando o Amor para Idiotas', cover: '/capas/explicando-amor.jpg', slug: 'explicando-o-amor', genre: 'nonfiction', authors: ['Kcinom Nilpoj'] },
+  { title: 'Eu não gosto dessa personagem!', subtitle: 'Minhas experiências na escrita de fantasia', cover: '/capas/personagem.jpg', slug: 'eu-nao-gosto-dessa-personagem', genre: 'nonfiction', authors: ['Kcinom Nilpoj'] },
+];
+
+const filtros = [
+  { id: 'all', label: 'Todos' },
+  { id: 'romantasy', label: 'Dark Romantasy' },
+  { id: 'fantasy-eastern', label: 'Fantasia Oriental' },
+  { id: 'fantasy-lit', label: 'Fantasia Literária' },
+  { id: 'scifi', label: 'Ficção Científica' },
+  { id: 'steampunk', label: 'Steampunk' },
+  { id: 'romance', label: 'Romance' },
+  { id: 'nonfiction', label: 'Não-ficção' }
+];
+---
+
+<BaseLayout 
+  title="Acervo" 
+  description="Acervo completo KCIN Editoria — fantasia, romance, ficção científica, não-ficção."
+>
+  <section class="acervo-hero">
+    <div class="container">
+      <p class="section-eyebrow fade-in">Biblioteca · Portfólio</p>
+      <h1 class="acervo-title fade-in">Acervo KCIN</h1>
+      <p class="acervo-desc container-narrow fade-in">
+        Toda a produção autoral do selo. Cada capa é livro publicado e também 
+        peça de portfólio de design. Clique pra ler ou conferir.
+      </p>
+    </div>
+  </section>
+  
+  <section class="acervo-filters">
+    <div class="container">
+      <div class="filters-list">
+        {filtros.map(f => (
+          <button class="filter-btn" data-filter={f.id} data-active={f.id === 'all'}>
+            {f.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  </section>
+  
+  <section class="acervo-grid-section">
+    <div class="container">
+      <div class="acervo-grid">
+        {livros.map(livro => (
+          <div class="acervo-item" data-genre={livro.genre}>
+            <BookCard {...livro} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+  
+  <script>
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const items = document.querySelectorAll('.acervo-item');
+    
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filter = btn.getAttribute('data-filter');
+        
+        filterButtons.forEach(b => b.setAttribute('data-active', 'false'));
+        btn.setAttribute('data-active', 'true');
+        
+        items.forEach(item => {
+          const genre = item.getAttribute('data-genre');
+          const shouldShow = filter === 'all' || genre === filter;
+          const el = item as HTMLElement;
+          
+          if (shouldShow) {
+            el.style.display = '';
+            setTimeout(() => item.classList.add('visible'), 50);
+          } else {
+            item.classList.remove('visible');
+            setTimeout(() => el.style.display = 'none', 300);
+          }
+        });
+      });
+    });
+    
+    // Aplica filtro inicial da URL (?g=romantasy)
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialFilter = urlParams.get('g');
+    if (initialFilter) {
+      const btn = document.querySelector(`[data-filter="${initialFilter}"]`);
+      if (btn) (btn as HTMLElement).click();
+    }
+  </script>
+</BaseLayout>
+
+<style>
+  .acervo-hero {
+    padding: var(--space-12) 0 var(--space-8);
+    text-align: center;
+  }
+  
+  .acervo-title {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    color: var(--kcin-gold-light);
+    margin: var(--space-3) 0 var(--space-4);
+    letter-spacing: 0.05em;
+  }
+  
+  .acervo-desc {
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    color: var(--kcin-parchment);
+    line-height: 1.7;
+  }
+  
+  .acervo-filters {
+    padding: var(--space-6) 0 var(--space-12);
+    position: sticky;
+    top: 80px;
+    z-index: 50;
+    background: rgba(10, 6, 18, 0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(212, 165, 116, 0.1);
+  }
+  
+  .filters-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    justify-content: center;
+  }
+  
+  .filter-btn {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: var(--space-2) var(--space-4);
+    background: transparent;
+    color: var(--kcin-ash);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease);
+    border-radius: var(--radius-sm);
+  }
+  
+  .filter-btn:hover {
+    color: var(--kcin-gold-light);
+    border-color: var(--kcin-gold-dim);
+  }
+  
+  .filter-btn[data-active="true"] {
+    color: var(--kcin-black);
+    background: var(--kcin-gold);
+    border-color: var(--kcin-gold);
+  }
+  
+  .acervo-grid-section {
+    padding: var(--space-8) 0 var(--space-16);
+  }
+  
+  .acervo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--space-8) var(--space-6);
+  }
+  
+  .acervo-item {
+    transition: opacity var(--duration-base) var(--ease);
+  }
+</style>

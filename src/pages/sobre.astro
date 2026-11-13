@@ -1,0 +1,156 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout 
+  title="Sobre"
+  description="KCIN Editoria — selo indie multigênero, idealizado por Kcinom Nilpoj."
+>
+  
+  <section class="sobre-hero">
+    <div class="container">
+      <p class="section-eyebrow fade-in">Sobre</p>
+      <h1 class="sobre-title fade-in">O que é KCIN</h1>
+    </div>
+  </section>
+  
+  <section class="sobre-content">
+    <div class="container container-narrow">
+      
+      <div class="sobre-block fade-in">
+        <p class="sobre-paragraph lead">
+          KCIN é selo independente brasileiro. Multigênero por convicção, 
+          autoral por princípio.
+        </p>
+      </div>
+      
+      <div class="sobre-block fade-in">
+        <h2 class="sobre-section-title">O selo</h2>
+        <p class="sobre-paragraph">
+          Nascido da inquietação criativa de quem escreve em vários universos — 
+          dark romantasy, fantasia oriental, ficção científica, romance, steampunk, 
+          fantasia literária e não-ficção — KCIN é casa pra obras que não cabem 
+          em fôrma única.
+        </p>
+        <p class="sobre-paragraph">
+          O selo publica desde sagas longas (Crônicas de Etéria, Sussurro do Dragão, 
+          Florestas de Kagami) até livros únicos, fanfics e ensaios. Cada obra recebe 
+          tratamento visual específico do gênero, sem templates, sem atalhos.
+        </p>
+      </div>
+      
+      <div class="divider-ornament">
+        <span>❦</span>
+      </div>
+      
+      <div class="sobre-block fade-in">
+        <h2 class="sobre-section-title">A pessoa por trás</h2>
+        <p class="sobre-paragraph">
+          KCIN é projeto autoral de <strong>Kcinom Nilpoj</strong> — escritora, 
+          designer de capas, programadora. Mato Grosso, Brasil.
+        </p>
+        <p class="sobre-paragraph">
+          Escreve desde adolescência. Publica desde 2020+. Faz capas próprias 
+          desde sempre — e oferece esse serviço pra outras autoras independentes 
+          que valorizam direção visual autoral em vez de templates de marketplace.
+        </p>
+      </div>
+      
+      <div class="divider-ornament">
+        <span>❦</span>
+      </div>
+      
+      <div class="sobre-block fade-in">
+        <h2 class="sobre-section-title">Filosofia editorial</h2>
+        <p class="sobre-paragraph">
+          KCIN acredita em <em>direção autoral total</em>: a história, a capa, 
+          a tipografia, a paleta e a sinopse vêm da mesma cabeça que escreveu 
+          o livro. Nada terceirizado pra quem não leu a obra. 
+          Nada genérico pra preencher prazo.
+        </p>
+        <p class="sobre-paragraph">
+          A consequência é catálogo pequeno, mas coerente. Cada livro com voz 
+          única, cada série com sistema visual próprio, cada universo com 
+          atmosfera reconhecível.
+        </p>
+      </div>
+      
+      <div class="divider-ornament">
+        <span>❦</span>
+      </div>
+      
+      <div class="sobre-block fade-in">
+        <h2 class="sobre-section-title">Atelier KCIN</h2>
+        <p class="sobre-paragraph">
+          Além de publicar obras próprias, KCIN oferece direção visual pra 
+          autoras indie: capas em múltiplos gêneros e diagramação de miolo 
+          completa. Da capa à última página, ou cada serviço sozinho.
+        </p>
+        <p class="sobre-paragraph">
+          <a href="/servicos" class="link-elegant">Conheça o atelier →</a>
+        </p>
+      </div>
+      
+    </div>
+  </section>
+  
+</BaseLayout>
+
+<style>
+  .sobre-hero {
+    padding: var(--space-16) 0 var(--space-8);
+    text-align: center;
+  }
+  
+  .sobre-title {
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    color: var(--kcin-gold-light);
+    margin: var(--space-3) 0;
+    letter-spacing: 0.05em;
+  }
+  
+  .sobre-content {
+    padding: var(--space-12) 0 var(--space-16);
+  }
+  
+  .sobre-block {
+    margin-bottom: var(--space-12);
+  }
+  
+  .sobre-section-title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    color: var(--kcin-gold);
+    margin-bottom: var(--space-6);
+    letter-spacing: 0.05em;
+    text-align: center;
+  }
+  
+  .sobre-paragraph {
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    color: var(--kcin-parchment);
+    line-height: 1.9;
+    margin-bottom: var(--space-4);
+  }
+  
+  .sobre-paragraph.lead {
+    font-size: var(--text-xl);
+    font-style: italic;
+    text-align: center;
+    color: var(--kcin-gold-light);
+    line-height: 1.7;
+  }
+  
+  .sobre-paragraph strong {
+    color: var(--kcin-gold);
+    font-weight: 600;
+    font-style: italic;
+  }
+  
+  .sobre-paragraph em {
+    color: var(--kcin-gold-light);
+    font-style: italic;
+  }
+</style>
