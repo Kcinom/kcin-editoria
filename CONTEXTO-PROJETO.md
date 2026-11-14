@@ -90,7 +90,7 @@ Valores de partida (nível sênior começando a cobrar):
 ## CATÁLOGO ATUAL (20 obras)
 
 Sussurro do Dragão (5 vol) · Crônicas de Etéria (6 vol) · Florestas de Kagami (4 vol) ·
-Rwaaj · Miraa de no Hansha · Akiko [fanfic] · Reflex · Memórias que Trazem a Guerra ·
+Ruraa · Miraa de no Hansha · Akiko [fanfic] · Reflex · Memórias que Trazem a Guerra ·
 Fantastic War [fanfic] · Ilha do Nunca · Margaretty Aiken · Like a Dream · Last Love ·
 The Princess Never Maried · Amélia · Love Greater Than All · My Lord ·
 Explicando o Amor para Idiotas · Eu não gosto dessa personagem!
