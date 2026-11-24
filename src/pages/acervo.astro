@@ -167,13 +167,21 @@ const filtros = [
   }
   
   .acervo-filters {
-    padding: var(--space-6) 0 var(--space-12);
-    position: sticky;
-    top: 80px;
-    z-index: 50;
-    background: rgba(10, 6, 18, 0.85);
-    backdrop-filter: blur(10px);
+    padding: var(--space-4) 0 var(--space-6);
     border-bottom: 1px solid rgba(212, 165, 116, 0.1);
+  }
+
+  @media (max-width: 768px) {
+    .filters-list {
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: var(--space-1);
+    }
+    .filters-list::-webkit-scrollbar { display: none; }
+    .filter-btn { flex: 0 0 auto; white-space: nowrap; }
   }
   
   .filters-list {
