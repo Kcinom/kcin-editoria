@@ -4,7 +4,7 @@ export interface Props {
   subtitle?: string;
   cover: string;
   slug: string;
-  genre: 'romantasy' | 'fantasy-eastern' | 'fantasy-lit' | 'scifi' | 'steampunk' | 'romance' | 'nonfiction';
+  genre: 'romantasy' | 'fantasy-eastern' | 'fantasy-lit' | 'scifi' | 'steampunk' | 'romance' | 'nonfiction' | 'fanfic';
   authors?: string[];
   series?: string;
   volume?: number;
@@ -37,7 +37,8 @@ const genreColors = {
   'scifi': 'var(--color-scifi)',
   'steampunk': 'var(--color-steampunk)',
   'romance': 'var(--color-romance)',
-  'nonfiction': 'var(--color-nonfiction)'
+  'nonfiction': 'var(--color-nonfiction)',
+  'fanfic': 'var(--color-fanfic)'
 };
 
 const genreLabel = {
@@ -47,7 +48,8 @@ const genreLabel = {
   'scifi': 'Ficção Científica',
   'steampunk': 'Steampunk',
   'romance': 'Romance',
-  'nonfiction': 'Não-ficção'
+  'nonfiction': 'Não-ficção',
+  'fanfic': 'Fanfic'
 };
 
 const cardColor = genreColors[genre];
