@@ -6,13 +6,16 @@ export interface Props {
   ogImage?: string;
   /** 'dark' (padrão) ou 'light' (Atelier) */
   theme?: 'dark' | 'light';
+  /** páginas privadas (painel): não aparecem no Google */
+  noindex?: boolean;
 }
 
 const { 
   title, 
   description = 'KCIN Editoria — selo independente multigênero. Dark romantasy, fantasia, ficção científica e mais.',
   ogImage = '/og-default.jpg',
-  theme = 'dark'
+  theme = 'dark',
+  noindex = false
 } = Astro.props;
 
 import '../styles/global.css';
@@ -40,6 +43,7 @@ const navItems = [
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="KCIN" />
   
+  {noindex && <meta name="robots" content="noindex, nofollow" />}
   <title>{title} | KCIN Editoria</title>
   <meta name="description" content={description} />
   
