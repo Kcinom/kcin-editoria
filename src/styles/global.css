@@ -971,3 +971,22 @@ body main { padding-top: 84px !important; }
 @media (prefers-reduced-motion: reduce) {
   .tab-dot, .rail-dot, .tabbar.moving .tab-dot, .rail.moving .rail-dot { animation: none !important; }
 }
+
+/* menu mais visível nas páginas escuras: vidro mais claro + contorno */
+@media (min-width: 769px) {
+  body.theme-dark .rail::before {
+    background: linear-gradient(180deg, rgba(120, 96, 160, .42), rgba(80, 60, 115, .38));
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.22), inset 0 1px 0 rgba(255,255,255,.35), 0 0 0 1px rgba(0,0,0,.2);
+  }
+  body.theme-dark .rail { filter: drop-shadow(0 18px 30px rgba(0,0,0,.6)); }
+  body.theme-dark .rail-ico { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.2); color: #FFF4E2; }
+  body.theme-dark .rail-toggle { background: rgba(90,68,128,.95); border-color: rgba(255,255,255,.3); }
+}
+@media (max-width: 768px) {
+  body.theme-dark .tabbar::before {
+    background: linear-gradient(180deg, rgba(120, 96, 160, .55), rgba(80, 60, 115, .6));
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.22), inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  body.theme-dark .tabbar { filter: drop-shadow(0 14px 24px rgba(0,0,0,.6)); }
+  body.theme-dark .tab { color: #FFF4E2 !important; }
+}
