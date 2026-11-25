@@ -142,6 +142,7 @@ import { SUPABASE_URL, SUPABASE_KEY, EMAIL_ATELIER } from '../lib/atelier-config
       const { data: rows, error } = await sb.from('atelier_fichas').select('*').order('created_at', { ascending: false });
       if (error) { mostrar('area'); $('lista-msg').textContent = 'Erro: ' + error.message; return; }
       fichas = rows;
+      try { localStorage.setItem('kcin-adm', '1'); } catch {}
       $('meu-id').textContent = user.id;
       mostrar('area');
       desenharFiltros();

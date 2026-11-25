@@ -83,6 +83,7 @@ const navItems = [
         </a>
       ))}
     </nav>
+    <a href="/painel/livros" class="rail-adm adm-atalho" hidden title="Meu painel" aria-label="Meu painel"><Icon name="lock" size={19} /></a>
   </aside>
 
   <header class="site-header">
@@ -100,6 +101,7 @@ const navItems = [
         ))}
       </nav>
       
+      <a href="/painel/livros" class="icon-btn adm-head-btn adm-atalho" hidden title="Meu painel" aria-label="Meu painel"><Icon name="lock" size={19} /></a>
       <button type="button" class="icon-btn install-btn" id="instalar" hidden aria-label="Instalar app" title="Instalar app"><Icon name="install" size={20} /></button>
 
       <button class="nav-toggle" aria-label="Abrir menu" aria-expanded="false">
@@ -174,7 +176,7 @@ const navItems = [
       
       <div class="footer-bottom">
         <p>© {new Date().getFullYear()} KCIN Editoria. Todos os direitos reservados.</p>
-        <p class="footer-credit">Idealizada por Kcinom Nilpoj</p>
+        <p class="footer-credit">Idealizada por Kcinom Nilpoj <a href="/painel/livros" class="footer-lock" title="Área da autora" aria-label="Área da autora"><Icon name="lock" size={13} /></a></p>
       </div>
     </div>
   </footer>
@@ -229,6 +231,8 @@ const navItems = [
     try { localStorage.setItem('kcin-rail', aberto ? '1' : '0'); } catch {}
   };
   try { if (localStorage.getItem('kcin-rail') === '1') setRail(true); } catch {}
+  // atalho do painel: só aparece no aparelho onde a autora já entrou
+  try { if (localStorage.getItem('kcin-adm') === '1') document.querySelectorAll<HTMLElement>('.adm-atalho').forEach(a => { a.hidden = false; }); } catch {}
   railBtn?.addEventListener('click', () => setRail(!rail?.classList.contains('open')));
 
   // barra de baixo: o círculo desliza até o ícone tocado antes de trocar de página

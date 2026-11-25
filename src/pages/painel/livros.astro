@@ -13,12 +13,12 @@ import { generos } from '../../data/livros';
       <!-- ENTRAR / CRIAR CONTA -->
       <section id="login" class="adm-cartao" hidden>
         <h1 id="login-titulo" class="adm-titulo">Entrar</h1>
-        <p class="adm-dica" id="login-dica">Acesso só para a autora.</p>
+        <p class="adm-dica" id="login-dica">Só a autora entra aqui.</p>
         <form id="login-form" class="adm-pilha">
           <label class="adm-campo"><span>E-mail</span><input type="email" id="login-email" required autocomplete="email" /></label>
           <label class="adm-campo"><span>Senha</span><input type="password" id="login-senha" required minlength="8" autocomplete="current-password" /></label>
           <button class="adm-entrar" type="submit" id="login-btn">Entrar</button>
-          <button class="adm-link" type="button" id="trocar">Primeiro acesso? Criar minha conta</button>
+          <button class="adm-link" type="button" id="trocar" hidden>Primeiro acesso? Criar minha conta</button>
           <p class="adm-aviso" id="login-msg" role="status"></p>
         </form>
       </section>
@@ -155,6 +155,7 @@ import { generos } from '../../data/livros';
     async function entrar(user) {
       const { data } = await sb.from('atelier_admins').select('user_id').eq('user_id', user.id).maybeSingle();
       if (!data) { $('meu-id').textContent = user.id; return mostrar('sem-acesso'); }
+      try { localStorage.setItem('kcin-adm', '1'); } catch {}
       mostrar('area');
       await carregar();
     }
@@ -312,7 +313,7 @@ import { generos } from '../../data/livros';
       $('login-msg').textContent = '';
       await entrar(data.user);
     });
-    $('sair').onclick = async () => { await sb.auth.signOut(); livros = []; mostrar('login'); };
+    $('sair').onclick = async () => { try { localStorage.removeItem('kcin-adm'); } catch {} await sb.auth.signOut(); livros = []; mostrar('login'); };
 
     iniciar();
     })();

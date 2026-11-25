@@ -990,3 +990,17 @@ body main { padding-top: 84px !important; }
   body.theme-dark .tabbar { filter: drop-shadow(0 14px 24px rgba(0,0,0,.6)); }
   body.theme-dark .tab { color: #FFF4E2 !important; }
 }
+
+/* atalho do painel da autora (só no aparelho dela) */
+.rail-adm { display: none; }
+@media (min-width: 769px) {
+  .rail-adm:not([hidden]) {
+    position: absolute; left: 50%; bottom: 74px; transform: translateX(-50%);
+    width: 42px; height: 42px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    color: #1A0F2E; background: rgba(232,200,150,.92); text-decoration: none; box-shadow: 0 6px 16px -6px rgba(0,0,0,.7);
+  }
+  .rail-adm:hover { background: #F1D7AE; }
+}
+.footer-lock { display: inline-flex; vertical-align: middle; margin-left: .35rem; color: inherit; opacity: .45; text-decoration: none; }
+.footer-lock:hover { opacity: .9; }
+.adm-head-btn { width: 40px; height: 40px; margin-left: .25rem; color: #1A0F2E; background: rgba(232,200,150,.92); border-color: transparent; }
