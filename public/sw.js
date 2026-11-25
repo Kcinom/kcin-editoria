@@ -8,7 +8,7 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
-  if (new URL(req.url).pathname.startsWith('/painel') || new URL(req.url).pathname.startsWith('/admin')) return;
+  if (new URL(req.url).pathname.startsWith('/k-')) return;
   // páginas: rede primeiro; capas e arquivos: cache primeiro
   if (req.mode === 'navigate') {
     e.respondWith(fetch(req).then(r => { const c = r.clone(); caches.open(CACHE).then(x => x.put(req, c)); return r; }).catch(() => caches.match(req)));

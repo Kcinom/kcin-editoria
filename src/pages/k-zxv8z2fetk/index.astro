@@ -37,7 +37,7 @@ import { generos } from '../../data/livros';
             <p class="adm-dica" id="resumo"></p>
           </div>
           <div class="adm-acoes">
-            <a href="/painel" class="icon-btn" title="Fichas do Atelier" aria-label="Fichas do Atelier"><Icon name="list" /></a>
+            <a href="/k-zxv8z2fetk/fichas" class="icon-btn" title="Fichas do Atelier" aria-label="Fichas do Atelier"><Icon name="list" /></a>
             <button type="button" id="sair" class="icon-btn" title="Sair" aria-label="Sair"><Icon name="logout" /></button>
             <button type="button" id="novo" class="icon-btn icon-btn-main" title="Novo livro" aria-label="Novo livro"><Icon name="plus" size={22} /></button>
           </div>
@@ -155,7 +155,7 @@ import { generos } from '../../data/livros';
     async function entrar(user) {
       const { data } = await sb.from('atelier_admins').select('user_id').eq('user_id', user.id).maybeSingle();
       if (!data) { $('meu-id').textContent = user.id; return mostrar('sem-acesso'); }
-      try { localStorage.setItem('kcin-adm', '1'); } catch {}
+      try { localStorage.setItem('kcin-adm', location.pathname.replace(/\/$/, '')); } catch {}
       mostrar('area');
       await carregar();
     }

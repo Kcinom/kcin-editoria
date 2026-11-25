@@ -1,8 +1,8 @@
 ---
 // Painel do Atelier — só a Kcinom acessa (login + regras do banco).
 // Não aparece no menu e pede pros buscadores não indexarem.
-import '../styles/global.css';
-import { SUPABASE_URL, SUPABASE_KEY, EMAIL_ATELIER } from '../lib/atelier-config.js';
+import '../../styles/global.css';
+import { SUPABASE_URL, SUPABASE_KEY, EMAIL_ATELIER } from '../../lib/atelier-config.js';
 ---
 
 <!DOCTYPE html>
@@ -24,7 +24,7 @@ import { SUPABASE_URL, SUPABASE_KEY, EMAIL_ATELIER } from '../lib/atelier-config
         <p class="section-eyebrow">Atelier KCIN</p>
         <h1 class="painel-title">Painel de fichas</h1>
       </div>
-      <div style="display:flex;gap:.5rem"><a class="btn btn-ghost" href="/painel/livros">Meus livros</a><button class="btn btn-ghost" id="sair" hidden>Sair</button></div>
+      <div style="display:flex;gap:.5rem"><a class="btn btn-ghost" href="/k-zxv8z2fetk">Meus livros</a><button class="btn btn-ghost" id="sair" hidden>Sair</button></div>
     </header>
 
     <!-- LOGIN -->
@@ -142,7 +142,7 @@ import { SUPABASE_URL, SUPABASE_KEY, EMAIL_ATELIER } from '../lib/atelier-config
       const { data: rows, error } = await sb.from('atelier_fichas').select('*').order('created_at', { ascending: false });
       if (error) { mostrar('area'); $('lista-msg').textContent = 'Erro: ' + error.message; return; }
       fichas = rows;
-      try { localStorage.setItem('kcin-adm', '1'); } catch {}
+      try { localStorage.setItem('kcin-adm', '/k-zxv8z2fetk'); } catch {}
       $('meu-id').textContent = user.id;
       mostrar('area');
       desenharFiltros();

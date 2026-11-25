@@ -83,7 +83,7 @@ const navItems = [
         </a>
       ))}
     </nav>
-    <a href="/painel/livros" class="rail-adm adm-atalho" hidden title="Meu painel" aria-label="Meu painel"><Icon name="lock" size={19} /></a>
+    <a href="#" class="rail-adm adm-atalho" hidden title="Meu painel" aria-label="Meu painel"><Icon name="lock" size={19} /></a>
   </aside>
 
   <header class="site-header">
@@ -101,7 +101,7 @@ const navItems = [
         ))}
       </nav>
       
-      <a href="/painel/livros" class="icon-btn adm-head-btn adm-atalho" hidden title="Meu painel" aria-label="Meu painel"><Icon name="lock" size={19} /></a>
+      <a href="#" class="icon-btn adm-head-btn adm-atalho" hidden title="Meu painel" aria-label="Meu painel"><Icon name="lock" size={19} /></a>
       <button type="button" class="icon-btn install-btn" id="instalar" hidden aria-label="Instalar app" title="Instalar app"><Icon name="install" size={20} /></button>
 
       <button class="nav-toggle" aria-label="Abrir menu" aria-expanded="false">
@@ -176,7 +176,7 @@ const navItems = [
       
       <div class="footer-bottom">
         <p>© {new Date().getFullYear()} KCIN Editoria. Todos os direitos reservados.</p>
-        <p class="footer-credit">Idealizada por Kcinom Nilpoj <a href="/painel/livros" class="footer-lock" title="Área da autora" aria-label="Área da autora"><Icon name="lock" size={13} /></a></p>
+        <p class="footer-credit">Idealizada por Kcinom Nilpoj</p>
       </div>
     </div>
   </footer>
@@ -232,7 +232,7 @@ const navItems = [
   };
   try { if (localStorage.getItem('kcin-rail') === '1') setRail(true); } catch {}
   // atalho do painel: só aparece no aparelho onde a autora já entrou
-  try { if (localStorage.getItem('kcin-adm') === '1') document.querySelectorAll<HTMLElement>('.adm-atalho').forEach(a => { a.hidden = false; }); } catch {}
+  try { const adm = localStorage.getItem('kcin-adm'); if (adm && adm.startsWith('/k-')) document.querySelectorAll<HTMLAnchorElement>('.adm-atalho').forEach(a => { a.href = adm; a.hidden = false; }); } catch {}
   railBtn?.addEventListener('click', () => setRail(!rail?.classList.contains('open')));
 
   // barra de baixo: o círculo desliza até o ícone tocado antes de trocar de página
