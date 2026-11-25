@@ -1,0 +1,86 @@
+---
+// Gaveta de detalhes do livro: sobe de baixo no celular, abre no centro no computador.
+import Icon from './Icon.astro';
+import { livros, generos } from '../data/livros';
+const dados = livros.map(l => ({ ...l, genreLabel: generos[l.genre] ?? '' }));
+---
+<dialog id="book-sheet" class="sheet" aria-labelledby="sheet-title">
+  <div class="sheet-bg" aria-hidden="true"><img id="sheet-bg-img" alt="" /></div>
+  <div class="sheet-grip" aria-hidden="true"></div>
+  <button type="button" class="sheet-close icon-btn" aria-label="Fechar" title="Fechar"><Icon name="close" size={20} /></button>
+  <div class="sheet-body">
+    <img id="sheet-cover" class="sheet-cover" alt="" />
+    <div class="sheet-info">
+      <p id="sheet-series" class="sheet-series"></p>
+      <h2 id="sheet-title" class="sheet-title"></h2>
+      <p id="sheet-subtitle" class="sheet-subtitle"></p>
+      <div class="sheet-chips"><span id="sheet-genre" class="chip"></span></div>
+      <p id="sheet-synopsis" class="sheet-synopsis"></p>
+      <div class="sheet-actions">
+        <a id="sheet-read" class="icon-btn icon-btn-main" target="_blank" rel="noopener" aria-label="Ler no Wattpad" title="Ler no Wattpad"><Icon name="read" size={22} /></a>
+        <a id="sheet-buy" class="icon-btn icon-btn-main" target="_blank" rel="noopener" aria-label="Comprar" title="Comprar"><Icon name="cart" size={22} /></a>
+        <button type="button" id="sheet-share" class="icon-btn" aria-label="Compartilhar" title="Compartilhar"><Icon name="share" size={20} /></button>
+      </div>
+      <p id="sheet-toast" class="sheet-toast" role="status"></p>
+    </div>
+  </div>
+</dialog>
+<script type="application/json" id="livros-data" set:html={JSON.stringify(dados)} />
+
+<script>
+  const sheet = document.getElementById('book-sheet') as HTMLDialogElement;
+  const data: any[] = JSON.parse(document.getElementById('livros-data')!.textContent || '[]');
+  const bySlug = new Map(data.map(l => [l.slug, l]));
+  const $ = (id: string) => document.getElementById(id)!;
+
+  function open(slug: string, push = true) {
+    const l = bySlug.get(slug);
+    if (!l) return;
+    ($('sheet-cover') as HTMLImageElement).src = l.cover;
+    ($('sheet-bg-img') as HTMLImageElement).src = l.cover;
+    $('sheet-series').textContent = l.series ? `${l.series}${l.volume ? ' · vol. ' + l.volume : ''}` : '';
+    $('sheet-title').textContent = l.title;
+    $('sheet-subtitle').textContent = l.subtitle || '';
+    $('sheet-genre').textContent = l.genreLabel;
+    $('sheet-synopsis').textContent = l.synopsis || '';
+    $('sheet-synopsis').hidden = !l.synopsis;
+    const read = $('sheet-read') as HTMLAnchorElement, buy = $('sheet-buy') as HTMLAnchorElement;
+    read.hidden = !l.wattpadLink; if (l.wattpadLink) read.href = l.wattpadLink;
+    buy.hidden = !l.amazonLink; if (l.amazonLink) buy.href = l.amazonLink;
+    $('sheet-toast').textContent = '';
+    if (!sheet.open) sheet.showModal();
+    if (push) history.replaceState(null, '', `#livro=${slug}`);
+  }
+  function close() {
+    sheet.classList.add('closing');
+    setTimeout(() => { sheet.classList.remove('closing'); sheet.close(); }, 220);
+    history.replaceState(null, '', location.pathname + location.search);
+  }
+
+  document.addEventListener('click', (e) => {
+    const card = (e.target as HTMLElement).closest('[data-slug]') as HTMLElement | null;
+    if (card) { e.preventDefault(); open(card.dataset.slug!); }
+  });
+  sheet.querySelector('.sheet-close')!.addEventListener('click', close);
+  sheet.addEventListener('click', (e) => { if (e.target === sheet) close(); });
+  sheet.addEventListener('cancel', (e) => { e.preventDefault(); close(); });
+  $('sheet-share').addEventListener('click', async () => {
+    const url = location.href;
+    const title = $('sheet-title').textContent || 'KCIN';
+    try {
+      if (navigator.share) await navigator.share({ title, url });
+      else { await navigator.clipboard.writeText(url); $('sheet-toast').textContent = 'Link copiado'; }
+    } catch { /* cancelado */ }
+  });
+
+  // arrastar pra baixo fecha (celular)
+  let startY = 0;
+  sheet.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive: true });
+  sheet.addEventListener('touchend', (e) => {
+    if (e.changedTouches[0].clientY - startY > 90 && sheet.scrollTop <= 0) close();
+  });
+
+  // link direto: /acervo#livro=slug
+  const m = location.hash.match(/livro=([\w-]+)/);
+  if (m) open(m[1], false);
+</script>

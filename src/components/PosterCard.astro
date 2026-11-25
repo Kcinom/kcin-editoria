@@ -1,0 +1,9 @@
+---
+import type { Livro } from '../data/livros';
+const { livro } = Astro.props as { livro: Livro };
+const nome = livro.subtitle ? `${livro.title} – ${livro.subtitle}` : livro.title;
+---
+<button class="poster" type="button" data-slug={livro.slug} data-title={`${livro.title} ${livro.subtitle ?? ''} ${livro.series ?? ''}`.toLowerCase()} data-genre={livro.genre} title={nome} aria-label={nome}>
+  <img src={livro.cover} alt="" loading="lazy" decoding="async" />
+  {livro.volume && <span class="poster-vol" aria-hidden="true">{livro.volume}</span>}
+</button>

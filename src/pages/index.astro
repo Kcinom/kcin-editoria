@@ -1,340 +1,58 @@
 ---
-import Icon from '../components/Icon.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import UniverseCard from '../components/UniverseCard.astro';
+import BookRow from '../components/BookRow.astro';
+import BookSheet from '../components/BookSheet.astro';
+import Icon from '../components/Icon.astro';
+import { livros, generos, fileiras } from '../data/livros';
 
-// Universos agrupados por gênero (cada card linka pro acervo com filtro)
-const universos = [
-  {
-    name: 'Dark Romantasy',
-    description: 'Princesas atormentadas, dragões espectrais, linhagens proibidas. Saga Etéria e Sussurro do Dragão.',
-    slug: 'romantasy',
-    color: 'var(--color-romantasy)',
-    bookCount: 11  // Sussurro 5 + Etéria 6
-  },
-  {
-    name: 'Fantasia Oriental',
-    description: 'Mandalas, magia ancestral e mundos paralelos conectados. Universo Miraa: Miraa de no Hansha, Ruraas e Florestas de Kagami.',
-    slug: 'fantasy-eastern',
-    color: 'var(--color-fantasy-eastern)',
-    bookCount: 6  // Universo Miraa: Miraa, Ruraas, Kagami 1-4
-  },
-  {
-    name: 'Ficção Científica',
-    description: 'Space opera e distopia tech. Memórias que Trazem a Guerra e Reflex.',
-    slug: 'scifi',
-    color: 'var(--color-scifi)',
-    bookCount: 2
-  },
-  {
-    name: 'Steampunk',
-    description: 'Híbridos vintage-tech. Mapas estelares, engrenagens douradas e mistérios do tempo.',
-    slug: 'steampunk',
-    color: 'var(--color-steampunk)',
-    bookCount: 2  // Ilha do Nunca + Margaretty
-  },
-  {
-    name: 'Romance',
-    description: 'Coletânea de romances solos e colaborativos. Contemporâneo, fairy tale e dark.',
-    slug: 'romance',
-    color: 'var(--color-romance)',
-    bookCount: 9  // Like a Dream, Last Love, Princesa, Príncipe, Giselle, Never Say Good Bye, Amélia, Love Greater, My Lord
-  },
-  {
-    name: 'Não-ficção',
-    description: 'Reflexões sobre amor, fé e escrita criativa. Vozes pessoais e ensaísticas.',
-    slug: 'nonfiction',
-    color: 'var(--color-nonfiction)',
-    bookCount: 2
-  },
-  {
-    name: 'Fanfics',
-    description: 'Histórias em universos que a gente ama, publicadas no Wattpad. Akiko e The Fantastic War.',
-    slug: 'fanfic',
-    color: 'var(--color-fanfic)',
-    bookCount: 2
-  }
-];
+// Destaque da vitrine (troque o slug para mudar o livro em destaque)
+const destaque = livros.find(l => l.slug === 'sussurro-do-dragao-i')!;
+const volumesSerie = livros.filter(l => l.series && l.series === destaque.series).length;
+const rows = fileiras();
+const doWattpad = livros.filter(l => l.wattpadLink);
 ---
 
 <BaseLayout title="Editora indie multigênero">
-  
-  <!-- HERO COM LOGO GIGANTE -->
-  <section class="hero">
-    <div class="hero-bg-ornament"></div>
-    
-    <div class="container hero-content">
-      <p class="hero-eyebrow fade-in">Selo independente</p>
-      
-      <div class="hero-logo fade-in">
-        <img src="/logo-kcin.svg" alt="KCIN" class="hero-logo-svg" />
+  <div class="app-page">
+    <section class="container feature" aria-label="Destaque">
+      <div class="feature-bg" aria-hidden="true"><img src={destaque.cover} alt="" /></div>
+      <button type="button" class="feature-cover" data-slug={destaque.slug} aria-label={`Detalhes de ${destaque.title}`}>
+        <img src={destaque.cover} alt={`Capa de ${destaque.title}`} />
+      </button>
+      <div class="feature-info">
+        <p class="feature-kicker">{destaque.series ? `Série · ${volumesSerie} volumes` : 'Destaque'}</p>
+        <h1 class="feature-title">{destaque.title}</h1>
+        <div class="sheet-chips"><span class="chip">{generos[destaque.genre]}</span></div>
+        <div class="feature-actions">
+          {destaque.wattpadLink && (
+            <a href={destaque.wattpadLink} target="_blank" rel="noopener" class="icon-btn icon-btn-main" aria-label="Ler no Wattpad" title="Ler no Wattpad"><Icon name="play" size={22} /></a>
+          )}
+          <button type="button" class="icon-btn" data-slug={destaque.slug} aria-label="Detalhes" title="Detalhes"><Icon name="info" size={22} /></button>
+          <a href="/acervo" class="icon-btn" aria-label="Acervo completo" title="Acervo completo"><Icon name="layers" size={22} /></a>
+        </div>
       </div>
-      
-      <p class="hero-editoria fade-in">Editoria</p>
-      
-      <p class="hero-tagline fade-in">
-        Ficção e não-ficção autoral.<br />
-        <em>Dark romantasy. Fantasia. Ficção científica. E mais.</em>
-      </p>
-      
-      <div class="hero-actions fade-in">
-        <a href="/acervo" class="btn btn-icon btn-round" title="Acervo" aria-label="Acervo"><Icon name="book" size={22} /></a>
-        <a href="/servicos" class="btn btn-ghost btn-icon btn-round" title="Atelier" aria-label="Atelier"><Icon name="brush" size={22} /></a>
-      </div>
-    </div>
-    
-    <div class="hero-scroll-hint">
-      <span></span>
-    </div>
-  </section>
-  
-  <div class="divider-ornament">
-    <span>❦</span>
-  </div>
-  
-  <!-- UNIVERSOS -->
-  <section class="universes">
-    <div class="container">
-      <div class="section-header fade-in">
-        <p class="section-eyebrow">Acervo</p>
-        <h2 class="section-title">Universos KCIN</h2>
-        <p class="section-desc container-narrow">
-          Cada universo carrega sua própria atmosfera, paleta e voz. 
-          Escolha o caminho que combina com você.
-        </p>
-      </div>
-      
-      <div class="universes-grid">
-        {universos.map(u => (
-          <UniverseCard {...u} />
-        ))}
-      </div>
-    </div>
-  </section>
-  
-  <div class="divider-ornament">
-    <span>❦</span>
-  </div>
-  
-  <!-- CHAMADA ATELIER -->
-  <section class="services-cta">
-    <div class="container container-narrow">
-      <div class="services-cta-inner fade-in">
-        <p class="section-eyebrow">Atelier KCIN</p>
-        <h2 class="section-title">Capa e diagramação para autores indie</h2>
-        <p class="services-desc">
-          Direção visual autoral da capa à última página. Capas por gênero, 
-          diagramação de miolo completa, ou o livro inteiro pronto pra publicar. 
-          Cada serviço pode ser contratado sozinho.
-        </p>
-        <a href="/servicos" class="btn btn-icon btn-round" title="Atelier" aria-label="Atelier"><Icon name="brush" size={22} /></a>
-      </div>
-    </div>
-  </section>
-  
-</BaseLayout>
+    </section>
 
-<style>
-  .hero {
-    min-height: 72vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    position: relative;
-    padding: var(--space-12) 0;
-    overflow: hidden;
-  }
-  
-  .hero-bg-ornament {
-    position: absolute;
-    inset: 0;
-    background: 
-      radial-gradient(circle at 20% 30%, rgba(74, 46, 95, 0.3), transparent 50%),
-      radial-gradient(circle at 80% 70%, rgba(15, 58, 46, 0.2), transparent 50%);
-    pointer-events: none;
-  }
-  
-  .hero-content {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-4);
-  }
-  
-  .hero-eyebrow {
-    font-family: var(--font-display);
-    font-size: var(--text-xs);
-    color: var(--kcin-gold);
-    letter-spacing: 0.4em;
-    text-transform: uppercase;
-    margin: 0 0 var(--space-4) 0;
-  }
-  
-  .hero-logo {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: var(--space-2);
-  }
-  
-  .hero-logo-svg {
-    width: clamp(200px, 34vw, 380px);
-    height: auto;
-    filter: invert(74%) sepia(33%) saturate(456%) hue-rotate(347deg) brightness(96%) contrast(89%);
-    animation: logo-glow 4s ease-in-out infinite;
-  }
-  
-  @keyframes logo-glow {
-    0%, 100% { filter: invert(74%) sepia(33%) saturate(456%) hue-rotate(347deg) brightness(96%) contrast(89%); }
-    50% { filter: invert(78%) sepia(40%) saturate(500%) hue-rotate(347deg) brightness(102%) contrast(89%); }
-  }
-  
-  .hero-editoria {
-    font-family: var(--font-script);
-    font-size: var(--text-3xl);
-    color: var(--kcin-gold);
-    letter-spacing: 0.1em;
-    margin: 0 0 var(--space-6) 0;
-    line-height: 1;
-  }
-  
-  .hero-tagline {
-    font-family: var(--font-serif);
-    font-size: var(--text-xl);
-    color: var(--kcin-parchment);
-    line-height: 1.6;
-    max-width: 540px;
-    margin: 0 0 var(--space-4) 0;
-  }
-  
-  .hero-tagline em {
-    color: var(--kcin-gold);
-    font-style: italic;
-    font-size: 0.9em;
-  }
-  
-  .hero-actions {
-    display: flex;
-    gap: var(--space-4);
-    margin-top: var(--space-4);
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  
-  .hero-scroll-hint {
-    position: absolute;
-    bottom: var(--space-8);
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  
-  .hero-scroll-hint span {
-    display: block;
-    width: 1px;
-    height: 40px;
-    background: linear-gradient(180deg, transparent, var(--kcin-gold-dim));
-    animation: scroll-hint 2s ease-in-out infinite;
-  }
-  
-  @keyframes scroll-hint {
-    0%, 100% { opacity: 0.3; transform: scaleY(0.8); transform-origin: top; }
-    50% { opacity: 1; transform: scaleY(1); }
-  }
-  
-  .section-header {
-    text-align: center;
-    margin-bottom: var(--space-16);
-  }
-  
-  .section-eyebrow {
-    font-family: var(--font-display);
-    font-size: var(--text-xs);
-    color: var(--kcin-gold);
-    letter-spacing: 0.4em;
-    text-transform: uppercase;
-    margin-bottom: var(--space-3);
-  }
-  
-  .section-title {
-    font-family: var(--font-display);
-    font-size: var(--text-3xl);
-    color: var(--kcin-gold-light);
-    margin-bottom: var(--space-4);
-    letter-spacing: 0.05em;
-  }
-  
-  .section-desc {
-    font-family: var(--font-serif);
-    font-size: var(--text-lg);
-    color: var(--kcin-parchment);
-    line-height: 1.7;
-  }
-  
-  .universes {
-    padding: var(--space-16) 0;
-  }
-  
-  .universes-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: var(--space-6);
-  }
-  
-  .services-cta {
-    padding: var(--space-16) 0;
-  }
-  
-  .services-cta-inner {
-    text-align: center;
-    padding: var(--space-12);
-    background: linear-gradient(135deg, 
-      rgba(74, 46, 95, 0.2), 
-      rgba(15, 58, 46, 0.1));
-    border: 1px solid rgba(212, 165, 116, 0.2);
-    border-radius: var(--radius-lg);
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .services-cta-inner::before,
-  .services-cta-inner::after {
-    content: '';
-    position: absolute;
-    width: 60px;
-    height: 60px;
-    border: 1px solid var(--kcin-gold-dim);
-  }
-  
-  .services-cta-inner::before {
-    top: 12px;
-    left: 12px;
-    border-right: none;
-    border-bottom: none;
-  }
-  
-  .services-cta-inner::after {
-    bottom: 12px;
-    right: 12px;
-    border-left: none;
-    border-top: none;
-  }
-  
-  .services-desc {
-    font-family: var(--font-serif);
-    font-size: var(--text-base);
-    color: var(--kcin-parchment);
-    line-height: 1.8;
-    max-width: 540px;
-    margin: var(--space-6) auto var(--space-8);
-  }
-  
-  @media (max-width: 768px) {
-    .services-cta-inner {
-      padding: var(--space-8) var(--space-6);
-    }
-  }
-</style>
+    <div class="container rows">
+      {rows.slice(0, 3).map(r => <BookRow title={r.title} books={r.books} />)}
+      {doWattpad.length > 0 && <BookRow title="Leia no Wattpad" books={doWattpad} />}
+    </div>
+
+    <section class="container">
+      <a href="/servicos" class="atelier-tile" aria-label="Atelier: capa e diagramação">
+        <div class="atelier-tile-fan" aria-hidden="true">
+          <img src="/capas/margaretty.jpg" alt="" />
+          <img src="/capas/amelia.jpg" alt="" />
+          <img src="/capas/explicando-amor.jpg" alt="" />
+        </div>
+        <div class="atelier-tile-text">
+          <h2>Atelier</h2>
+          <p>Capa e diagramação para autores indie</p>
+        </div>
+        <span class="icon-btn icon-btn-main" aria-hidden="true"><Icon name="brush" size={22} /></span>
+      </a>
+    </section>
+  </div>
+
+  <BookSheet />
+</BaseLayout>

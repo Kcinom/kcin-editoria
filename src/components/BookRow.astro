@@ -1,0 +1,29 @@
+---
+import PosterCard from './PosterCard.astro';
+import Icon from './Icon.astro';
+import type { Livro } from '../data/livros';
+const { title, books } = Astro.props as { title: string; books: Livro[] };
+---
+<section class="row" aria-label={title}>
+  <div class="row-head">
+    <h2 class="row-title">{title}</h2>
+    <div class="row-arrows">
+      <button type="button" class="row-arrow" data-dir="-1" aria-label="Voltar"><Icon name="left" size={18} /></button>
+      <button type="button" class="row-arrow" data-dir="1" aria-label="Avançar"><Icon name="right" size={18} /></button>
+    </div>
+  </div>
+  <div class="row-track">
+    {books.map(b => <PosterCard livro={b} />)}
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.row').forEach(row => {
+    const track = row.querySelector<HTMLElement>('.row-track')!;
+    row.querySelectorAll<HTMLButtonElement>('.row-arrow').forEach(b => {
+      b.addEventListener('click', () => {
+        track.scrollBy({ left: Number(b.dataset.dir) * track.clientWidth * 0.85, behavior: 'smooth' });
+      });
+    });
+  });
+</script>
