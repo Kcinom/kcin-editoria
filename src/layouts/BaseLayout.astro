@@ -109,9 +109,10 @@ const navItems = [
     <slot />
   </main>
 
-  <nav class="tabbar" aria-label="Navegação">
-    {navItems.map(i => (
-      <a href={i.href} class="tab" title={i.label} aria-label={i.label} aria-current={path === i.href ? 'page' : undefined}>
+  <nav class="tabbar" aria-label="Navegação" style={`--i:${Math.max(0, navItems.findIndex(n => n.href === path))}`} data-has-active={navItems.some(n => n.href === path) ? 'true' : 'false'}>
+    <span class="tab-dot" aria-hidden="true"></span>
+    {navItems.map((i, idx) => (
+      <a href={i.href} class="tab" data-idx={idx} title={i.label} aria-label={i.label} aria-current={path === i.href ? 'page' : undefined}>
         <Icon name={i.icon} size={24} /><span class="sr-only">{i.label}</span>
       </a>
     ))}
@@ -224,6 +225,21 @@ const navItems = [
   };
   try { if (localStorage.getItem('kcin-rail') === '1') setRail(true); } catch {}
   railBtn?.addEventListener('click', () => setRail(!rail?.classList.contains('open')));
+
+  // barra de baixo: o círculo desliza até o ícone tocado antes de trocar de página
+  const tabbar = document.querySelector<HTMLElement>('.tabbar');
+  const calmo = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  tabbar?.querySelectorAll<HTMLAnchorElement>('.tab').forEach(t => {
+    t.addEventListener('click', (e) => {
+      if (t.getAttribute('aria-current') === 'page' || calmo || e.metaKey || e.ctrlKey) return;
+      e.preventDefault();
+      tabbar.dataset.hasActive = 'true';
+      tabbar.querySelectorAll('.tab').forEach(x => x.removeAttribute('aria-current'));
+      t.setAttribute('aria-current', 'page');
+      tabbar.style.setProperty('--i', t.dataset.idx || '0');
+      setTimeout(() => { location.href = t.href; }, 320);
+    });
+  });
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
