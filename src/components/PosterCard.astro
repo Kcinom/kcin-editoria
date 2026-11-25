@@ -2,10 +2,11 @@
 import type { Livro } from '../data/livros';
 import Icon from './Icon.astro';
 const { livro } = Astro.props as { livro: Livro };
-const nome = livro.subtitle ? `${livro.title} – ${livro.subtitle}` : livro.title;
+const nome = (livro.subtitle ? `${livro.title} – ${livro.subtitle}` : livro.title) + (livro.status === 'revisao' ? ' (em revisão)' : '');
 ---
 <button class="poster" type="button" data-slug={livro.slug} data-title={`${livro.title} ${livro.subtitle ?? ''} ${livro.series ?? ''}`.toLowerCase()} data-genre={livro.genre} title={nome} aria-label={nome}>
   <img src={livro.cover} alt="" loading="lazy" decoding="async" />
   {livro.volume && <span class="poster-vol" aria-hidden="true">{livro.volume}</span>}
+  {livro.status === 'revisao' && <span class="poster-status" aria-hidden="true" title="Em revisão"><Icon name="pen" size={13} /></span>}
   {livro.wattpadLink && !livro.rascunho && <span class="poster-read" aria-hidden="true"><Icon name="read" size={14} /></span>}
 </button>

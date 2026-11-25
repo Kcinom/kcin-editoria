@@ -4,7 +4,7 @@ import BookRow from '../components/BookRow.astro';
 import PosterCard from '../components/PosterCard.astro';
 import BookSheet from '../components/BookSheet.astro';
 import Icon from '../components/Icon.astro';
-import { livros, generos, fileiras, lancamentos, maisLidos } from '../data/livros';
+import { livros, generos, fileiras, lancamentos, maisLidos, emRevisao } from '../data/livros';
 const rows = fileiras();
 ---
 
@@ -30,6 +30,7 @@ const rows = fileiras();
     <div id="rows" class="container rows">
       <BookRow title="Novos para ler" books={lancamentos()} big />
       <BookRow title="Mais lidos" books={maisLidos()} big />
+      <BookRow title="Em breve · em revisão" books={emRevisao()} />
       {rows.map(r => <BookRow title={r.title} books={r.books} />)}
     </div>
 

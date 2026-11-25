@@ -14,7 +14,7 @@ const dados = livros.map(l => ({ ...l, genreLabel: generos[l.genre] ?? '' }));
       <p id="sheet-series" class="sheet-series"></p>
       <h2 id="sheet-title" class="sheet-title"></h2>
       <p id="sheet-subtitle" class="sheet-subtitle"></p>
-      <div class="sheet-chips"><span id="sheet-genre" class="chip"></span></div>
+      <div class="sheet-chips"><span id="sheet-genre" class="chip"></span><span id="sheet-status" class="chip chip-status"><Icon name="pen" size={13} /> Em revisão</span></div>
       <p id="sheet-synopsis" class="sheet-synopsis"></p>
       <div class="sheet-actions">
         <a id="sheet-read" class="icon-btn icon-btn-main" target="_blank" rel="noopener" aria-label="Ler no Wattpad" title="Ler no Wattpad"><Icon name="read" size={22} /></a>
@@ -42,6 +42,7 @@ const dados = livros.map(l => ({ ...l, genreLabel: generos[l.genre] ?? '' }));
     $('sheet-title').textContent = l.title;
     $('sheet-subtitle').textContent = l.subtitle || '';
     $('sheet-genre').textContent = l.genreLabel;
+    $('sheet-status').hidden = l.status !== 'revisao';
     $('sheet-synopsis').textContent = l.synopsis || '';
     $('sheet-synopsis').hidden = !l.synopsis;
     const read = $('sheet-read') as HTMLAnchorElement, buy = $('sheet-buy') as HTMLAnchorElement;

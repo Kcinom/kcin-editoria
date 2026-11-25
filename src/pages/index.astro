@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import BookRow from '../components/BookRow.astro';
 import BookSheet from '../components/BookSheet.astro';
 import Icon from '../components/Icon.astro';
-import { livros, generos, fileiras, lancamentos, maisLidos, destaque as pegarDestaque } from '../data/livros';
+import { livros, generos, fileiras, lancamentos, maisLidos, emRevisao, destaque as pegarDestaque } from '../data/livros';
 
 // Destaque da vitrine (troque o slug para mudar o livro em destaque)
 const destaque = pegarDestaque();
@@ -36,6 +36,7 @@ const rows = fileiras();
     <div class="container rows">
       <BookRow title="Novos para ler" books={lancamentos()} big />
       <BookRow title="Mais lidos" books={maisLidos()} big />
+      <BookRow title="Em breve · em revisão" books={emRevisao()} />
       {rows.map(r => <BookRow title={r.title} books={r.books} />)}
     </div>
 

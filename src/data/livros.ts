@@ -7,15 +7,17 @@ export interface Livro {
   isWattpad?: boolean; wattpadLink?: string; amazonLink?: string; synopsis?: string;
   /** história ainda em rascunho no Wattpad (link não abre pro público) */
   rascunho?: boolean;
+  /** 'revisao' = ainda não lançado, em revisão */
+  status?: 'revisao';
 }
 
 export const livros: Livro[] = [
   // ===== Sussurro do Dragão (5 vol) =====
-  { title: 'O Sussurro do Dragão', cover: '/capas/sussurro-i.jpg', slug: 'sussurro-do-dragao-i', rascunho: true, genre: 'romantasy', series: 'Sussurro do Dragão', volume: 1, authors: ['Kcinom Nilpoj'], isWattpad: true, wattpadLink: 'https://www.wattpad.com/story/403318755-a-princesa-e-o-drag%C3%A3o' },
-  { title: 'O Silêncio do Dragão', cover: '/capas/sussurro-ii.jpg', slug: 'sussurro-do-dragao-ii', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 2, authors: ['Kcinom Nilpoj'] },
-  { title: 'A Fúria do Dragão', cover: '/capas/sussurro-iii.jpg', slug: 'sussurro-do-dragao-iii', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 3, authors: ['Kcinom Nilpoj'] },
-  { title: 'O Rugido do Dragão', cover: '/capas/sussurro-iv.jpg', slug: 'sussurro-do-dragao-iv', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 4, authors: ['Kcinom Nilpoj'] },
-  { title: 'O Trono do Dragão', cover: '/capas/sussurro-v.jpg', slug: 'sussurro-do-dragao-v', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 5, authors: ['Kcinom Nilpoj'] },
+  { title: 'O Sussurro do Dragão', cover: '/capas/sussurro-i.jpg', slug: 'sussurro-do-dragao-i', status: 'revisao', rascunho: true, genre: 'romantasy', series: 'Sussurro do Dragão', volume: 1, authors: ['Kcinom Nilpoj'], isWattpad: true, wattpadLink: 'https://www.wattpad.com/story/403318755-a-princesa-e-o-drag%C3%A3o' },
+  { title: 'O Silêncio do Dragão', cover: '/capas/sussurro-ii.jpg', slug: 'sussurro-do-dragao-ii', status: 'revisao', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 2, authors: ['Kcinom Nilpoj'] },
+  { title: 'A Fúria do Dragão', cover: '/capas/sussurro-iii.jpg', slug: 'sussurro-do-dragao-iii', status: 'revisao', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 3, authors: ['Kcinom Nilpoj'] },
+  { title: 'O Rugido do Dragão', cover: '/capas/sussurro-iv.jpg', slug: 'sussurro-do-dragao-iv', status: 'revisao', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 4, authors: ['Kcinom Nilpoj'] },
+  { title: 'O Trono do Dragão', cover: '/capas/sussurro-v.jpg', slug: 'sussurro-do-dragao-v', status: 'revisao', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 5, authors: ['Kcinom Nilpoj'] },
   
   // ===== Crônicas de Etéria (6 vol) =====
   { title: 'Mikaela', subtitle: 'A Princesa', cover: '/capas/mikaela-1.jpg', slug: 'mikaela-princesa', genre: 'romantasy', series: 'Crônicas de Etéria', volume: 1, authors: ['Kcinom Nilpoj'] },
@@ -26,7 +28,7 @@ export const livros: Livro[] = [
   { title: 'David', subtitle: 'O Governante', cover: '/capas/david-2.jpg', slug: 'david-governante', genre: 'romantasy', series: 'Crônicas de Etéria', volume: 6, authors: ['Kcinom Nilpoj'] },
   
   // ===== Universo Miraa (Miraa de no Hansha 1-5, Ruraas, Florestas de Kagami 1-4) =====
-  { title: 'Miraa de no Hansha', subtitle: 'A Decisão de Amar', cover: '/capas/miraa.jpg', slug: 'miraa-1', genre: 'fantasy-eastern', series: 'Universo Miraa', volume: 1, authors: ['Kcinom Nilpoj'] },
+  { title: 'Miraa de no Hansha', subtitle: 'A Decisão de Amar', cover: '/capas/miraa.jpg', slug: 'miraa-1', status: 'revisao', genre: 'fantasy-eastern', series: 'Universo Miraa', volume: 1, authors: ['Kcinom Nilpoj'] },
   { title: 'Ruraas', subtitle: 'A Origem', cover: '/capas/ruraa.jpg', slug: 'ruraas', genre: 'fantasy-eastern', series: 'Universo Miraa', volume: 6, authors: ['Kcinom Nilpoj'] },
   { title: 'Florestas de Kagami', subtitle: 'Sussurrante', cover: '/capas/kagami-1.jpg', slug: 'kagami-i', genre: 'fantasy-eastern', series: 'Universo Miraa', volume: 7, authors: ['Kcinom Nilpoj'] },
   { title: 'Florestas de Kagami', subtitle: 'Silêncio da Morte', cover: '/capas/kagami-2.jpg', slug: 'kagami-ii', genre: 'fantasy-eastern', series: 'Universo Miraa', volume: 8, authors: ['Kcinom Nilpoj'] },
@@ -115,3 +117,6 @@ export function destaque() {
   }
   return novo ?? livros[0];
 }
+
+/** Ainda não lançados: em revisão */
+export const emRevisao = () => livros.filter(l => l.status === 'revisao');
