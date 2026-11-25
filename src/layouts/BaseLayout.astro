@@ -4,12 +4,15 @@ export interface Props {
   title: string;
   description?: string;
   ogImage?: string;
+  /** 'dark' (padrão) ou 'light' (Atelier) */
+  theme?: 'dark' | 'light';
 }
 
 const { 
   title, 
   description = 'KCIN Editoria — selo independente multigênero. Dark romantasy, fantasia, ficção científica e mais.',
-  ogImage = '/og-default.jpg'
+  ogImage = '/og-default.jpg',
+  theme = 'dark'
 } = Astro.props;
 
 import '../styles/global.css';
@@ -42,7 +45,14 @@ import '../styles/global.css';
   />
 </head>
 
-<body>
+<body class={`theme-${theme}`}>
+  <div class="glass-backdrop" aria-hidden="true">
+    <img src="/capas/sussurro-i.jpg" alt="" class="gb gb-1" />
+    <img src="/capas/miraa.jpg" alt="" class="gb gb-2" />
+    <img src="/capas/amelia.jpg" alt="" class="gb gb-3" />
+    <img src="/capas/kagami-1.jpg" alt="" class="gb gb-4" />
+    <img src="/capas/love-greater.jpg" alt="" class="gb gb-5" />
+  </div>
   <header class="site-header">
     <div class="container header-content">
       <a href="/" class="logo" aria-label="KCIN Editoria - Página inicial">

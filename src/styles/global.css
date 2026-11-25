@@ -335,3 +335,148 @@ a.link-elegant:hover::after {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* =====================================================================
+   VIDRO FOSCO (glassmorphism) — base escura no site, clara no Atelier
+   ===================================================================== */
+:root {
+  --glass-bg: rgba(24, 15, 40, 0.42);
+  --glass-bg-strong: rgba(20, 12, 34, 0.62);
+  --glass-border: rgba(255, 255, 255, 0.11);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  --glass-shadow: 0 20px 40px -24px rgba(0, 0, 0, 0.7);
+  --glass-blur: blur(18px) saturate(140%);
+  --glass-radius: 22px;
+}
+
+body.theme-light {
+  --glass-bg: rgba(255, 255, 255, 0.52);
+  --glass-bg-strong: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --glass-shadow: 0 18px 40px -24px rgba(74, 46, 95, 0.45);
+  background: #EEE9F1;
+}
+
+body { background-image: none; }
+
+/* fundo: capas do acervo, bem desfocadas */
+.glass-backdrop {
+  position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none;
+  background: var(--kcin-black);
+}
+.glass-backdrop .gb {
+  position: absolute; width: 46vw; max-width: 720px; aspect-ratio: 2 / 3; object-fit: cover;
+  filter: blur(70px) saturate(130%) brightness(0.55);
+  opacity: 0.9;
+}
+.gb-1 { top: -20%; left: -12%; }
+.gb-2 { top: -25%; right: -10%; }
+.gb-3 { top: 35%; left: 30%; opacity: .55 !important; }
+.gb-4 { bottom: -35%; left: -15%; }
+.gb-5 { bottom: -30%; right: -12%; }
+.glass-backdrop::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(10,6,18,.35), rgba(10,6,18,.55));
+}
+body.theme-light .glass-backdrop { background: #EEE9F1; }
+body.theme-light .glass-backdrop .gb { filter: blur(80px) saturate(120%) brightness(1.25); opacity: .55; }
+body.theme-light .glass-backdrop::after {
+  background: linear-gradient(180deg, rgba(243,239,245,.72), rgba(238,233,241,.82));
+}
+
+/* painel de vidro reutilizável */
+.glass,
+body .site-header,
+body .site-footer,
+body .book-card,
+body .services-cta-inner,
+body .channel-card,
+body .sobre-block,
+body .acervo-filters .filters-list {
+  background: var(--glass-bg) !important;
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--glass-highlight), var(--glass-shadow);
+}
+
+/* cabeçalho flutuante em vidro (sempre escuro) */
+body .site-header {
+  top: 12px !important; left: 12px !important; right: 12px !important;
+  border-radius: 20px;
+  background: rgba(18, 11, 30, 0.5) !important;
+  border-color: rgba(255,255,255,.1) !important;
+}
+body .site-header.scrolled { background: rgba(18, 11, 30, 0.72) !important; }
+@media (max-width: 768px) {
+  body .nav {
+    top: 84px !important; left: 12px !important; right: 12px !important;
+    border-radius: 20px;
+    background: rgba(18, 11, 30, 0.82) !important;
+    -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,.1) !important;
+  }
+}
+
+/* rodapé em vidro (sempre escuro) */
+body .site-footer {
+  margin: var(--space-12) 12px 12px;
+  border-radius: 28px;
+  background: rgba(18, 11, 30, 0.55) !important;
+  border-color: rgba(255,255,255,.1) !important;
+}
+
+/* cards de livro: ladrilho de vidro com a capa dentro */
+body .book-card {
+  padding: 10px 10px 14px;
+  border-radius: var(--glass-radius);
+}
+body .book-card .card-cover-wrap { border-radius: 14px; }
+body .book-card:hover { box-shadow: var(--glass-highlight), 0 26px 46px -22px rgba(0,0,0,.8); }
+
+/* barra de gêneros: controle segmentado de vidro */
+body .acervo-filters { border-bottom: 0 !important; }
+body .acervo-filters .filters-list {
+  display: inline-flex; padding: 6px; border-radius: 999px; gap: 4px;
+}
+body .acervo-filters .container { display: flex; justify-content: center; }
+body .acervo-filters .filter-btn { border-radius: 999px; border-color: transparent !important; }
+body .acervo-filters .filter-btn[data-active="true"] {
+  background: rgba(232, 200, 150, 0.9); color: #1A0F2E;
+  box-shadow: 0 6px 14px -8px rgba(232,200,150,.8);
+}
+@media (max-width: 768px) {
+  body .acervo-filters .filters-list { display: flex; max-width: 100%; }
+}
+
+/* universos da home */
+body .universe-card {
+  border-radius: 24px !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  box-shadow: var(--glass-highlight), 0 24px 44px -26px rgba(0,0,0,.8);
+}
+body .universe-card .universe-content {
+  margin: 10px; border-radius: 16px;
+  background: rgba(20,12,34,.38);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,.1);
+}
+
+body .services-cta-inner,
+body .channel-card,
+body .sobre-block { border-radius: 28px !important; }
+body .sobre-block { padding: var(--space-8); margin-bottom: var(--space-6); }
+
+/* botões em pílula */
+body .btn { border-radius: 999px; }
+body .btn-ghost {
+  background: rgba(255,255,255,.06);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root { --glass-bg: rgba(24,15,40,.92); }
+  body.theme-light { --glass-bg: rgba(255,255,255,.95); }
+}
