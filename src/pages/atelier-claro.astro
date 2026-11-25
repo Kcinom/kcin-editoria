@@ -1,0 +1,1166 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SUPABASE_URL, SUPABASE_KEY, FORMSPREE_URL } from '../lib/atelier-config.js';
+
+/*
+  TABELA DE PREÇO — usada pelo orçamento automático.
+  Para mudar valores, edite só aqui. [mínimo, máximo] em reais.
+*/
+const PRECOS = {
+  capaEbook: [700, 900],
+  capaWrap: [1100, 1400],
+  diag200: [800, 1000],     // até 200 páginas
+  diag400: [1000, 1400],    // 201 a 400 páginas
+  diag400mais: [1400, 1800],// mais de 400 páginas
+  descontoCompleto: 0.15,   // capa + miolo juntos
+  descontoSeriePorVolume: 0.05, // cada volume extra ganha +5% de desconto...
+  descontoSerieMax: 0.25,       // ...até no máximo 25%
+  urgencia: 0.25            // prazo curto
+};
+
+const servicos = [
+  {
+    name: 'Capa',
+    tagline: 'A primeira página do livro',
+    desc: 'Front-cover (ebook) ou wrap completo (impressão). Direção visual autoral por gênero.',
+    features: [
+      'Capa em alta resolução (300 DPI)',
+      'Formato otimizado pra Amazon KDP',
+      'Lombada calculada (no wrap)',
+      'Mock-up 3D pra divulgação',
+      'Até 2 rodadas de revisão'
+    ],
+    from: PRECOS.capaEbook[0]
+  },
+  {
+    name: 'Diagramação de miolo',
+    tagline: 'O livro por dentro',
+    desc: 'Layout interno completo — do sumário à última página. Pode ser contratada sozinha, mesmo com capa de outro profissional.',
+    features: [
+      'Projeto gráfico do miolo',
+      'Tipografia de corpo e títulos',
+      'Letras capitulares e aberturas de capítulo',
+      'Sumário, fólios e cabeçalhos',
+      'Arquivos finais: PDF impressão + EPUB'
+    ],
+    from: PRECOS.diag200[0]
+  },
+  {
+    name: 'Livro completo',
+    tagline: 'Da capa à última página',
+    desc: 'Capa e diagramação na mesma direção autoral, com desconto por contratar os dois juntos.',
+    features: [
+      'Tudo de Capa + Diagramação',
+      'Identidade visual coerente capa↔miolo',
+      'Arquivos prontos pra KDP (ebook e impressão)',
+      `${PRECOS.descontoCompleto * 100}% de desconto no pacote`
+    ],
+    featured: true,
+    from: Math.round((PRECOS.capaEbook[0] + PRECOS.diag200[0]) * (1 - PRECOS.descontoCompleto) / 10) * 10
+  },
+  {
+    name: 'Série editorial',
+    tagline: 'Identidade pra uma saga',
+    desc: 'Sistema visual unificado para série de 2 a 6 livros — capas e miolos consistentes.',
+    features: [
+      'Sistema visual de série',
+      'Paleta canônica por volume',
+      'Diagramação consistente entre livros',
+      `Desconto progressivo por volume (até ${PRECOS.descontoSerieMax * 100}%)`
+    ],
+    from: null
+  }
+];
+
+const generosAtendidos = [
+  'Dark Romantasy',
+  'Fantasia Literária',
+  'Fantasia Oriental',
+  'Ficção Científica',
+  'Romance Contemporâneo',
+  'Romance Fairy Tale',
+  'Steampunk',
+  'Não-ficção'
+];
+
+const brl = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+---
+
+<BaseLayout
+  title="Atelier (versão clara – teste)"
+  description="Atelier KCIN — capa e diagramação para autores indie. Orçamento na hora, trabalho autoral, sem pressa."
+>
+
+  <div class="atelier-light">
+
+  <section class="al-hero">
+    <div class="container al-hero-grid">
+      <div class="al-hero-text">
+        <p class="al-kicker">Atelier KCIN · capa e diagramação</p>
+        <h1 class="al-title">Seu livro merece uma capa à altura dele</h1>
+        <p class="al-lead">
+          Faço capa e miolo para autores independentes, do primeiro livro à série inteira.
+          Você não precisa saber termos técnicos: a ficha pergunta tudo o que eu preciso.
+        </p>
+        <div class="al-actions">
+          <a href="#orcamento" class="al-btn al-btn-main">Calcular meu orçamento</a>
+          <a href="#processo" class="al-btn al-btn-soft">Ver como funciona</a>
+        </div>
+      </div>
+      <div class="al-fan" aria-label="Algumas capas feitas no atelier">
+        <img src="/capas/margaretty.jpg" alt="Capa de Margaretty Aiken" class="al-fan-1" loading="eager" />
+        <img src="/capas/sussurro-i.jpg" alt="Capa de O Sussurro do Dragão" class="al-fan-2" loading="eager" />
+        <img src="/capas/amelia.jpg" alt="Capa de Amélia" class="al-fan-3" loading="eager" />
+        <img src="/capas/love-greater.jpg" alt="Capa de Love Greater Than All" class="al-fan-4" loading="eager" />
+        <img src="/capas/explicando-amor.jpg" alt="Capa de Explicando o Amor para Idiotas" class="al-fan-5" loading="eager" />
+      </div>
+    </div>
+  </section>
+
+  <section class="al-prices">
+    <div class="container">
+      <ul class="al-price-list">
+        <li><span class="al-price-name">Capa</span><span class="al-price-value">a partir de {brl(PRECOS.capaEbook[0])}</span></li>
+        <li><span class="al-price-name">Diagramação</span><span class="al-price-value">a partir de {brl(PRECOS.diag200[0])}</span></li>
+        <li><span class="al-price-name">Capa + miolo</span><span class="al-price-value">a partir de {brl(servicos[2].from)}</span></li>
+      </ul>
+      <p class="al-price-note">Pagamento em duas partes: metade para começar, metade na entrega.</p>
+    </div>
+  </section>
+
+  <section class="al-styles">
+    <div class="container">
+      <h2 class="al-h2">Do romance fofo à fantasia sombria</h2>
+      <p class="al-p">
+        Cada capa nasce do clima da história. Clara, delicada, divertida ou escura:
+        quem define é o seu livro.
+      </p>
+      <div class="al-shelf">
+        <figure><img src="/capas/never-say-goodbye.jpg" alt="Capa de Never Say Good Bye!" loading="lazy" /><figcaption>Romance</figcaption></figure>
+        <figure><img src="/capas/like-a-dream.jpg" alt="Capa de Like a Dream" loading="lazy" /><figcaption>Romance juvenil</figcaption></figure>
+        <figure><img src="/capas/ilha-do-nunca.jpg" alt="Capa de Ilha do Nunca" loading="lazy" /><figcaption>Aventura</figcaption></figure>
+        <figure><img src="/capas/princess.jpg" alt="Capa de A Princesa Jamais se Casará" loading="lazy" /><figcaption>Conto de fadas</figcaption></figure>
+        <figure><img src="/capas/personagem.jpg" alt="Capa de Eu não gosto dessa personagem!" loading="lazy" /><figcaption>Não-ficção</figcaption></figure>
+        <figure><img src="/capas/kagami-1.jpg" alt="Capa de Florestas de Kagami" loading="lazy" /><figcaption>Fantasia</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="services">
+    <div class="container">
+      <div class="section-header fade-in">
+        <p class="section-eyebrow">O que o atelier oferece</p>
+        <h2 class="section-title">Serviços</h2>
+        <p class="section-desc container-narrow">
+          Cada serviço pode ser contratado de forma independente.
+          Calcule o valor do seu projeto no orçamento abaixo.
+        </p>
+      </div>
+      <div class="services-grid">
+        {servicos.map(s => (
+          <div class={`service-card fade-in ${s.featured ? 'featured' : ''}`}>
+            {s.featured && <span class="service-badge">Pacote completo</span>}
+            <h3 class="service-name">{s.name}</h3>
+            <p class="service-card-tagline">{s.tagline}</p>
+            <p class="service-desc">{s.desc}</p>
+            <ul class="service-features">
+              {s.features.map(f => <li>{f}</li>)}
+            </ul>
+            <p class="service-price">
+              {s.from ? `A partir de ${brl(s.from)}` : 'Desconto por volume'}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="process-section" id="processo">
+    <div class="container">
+      <div class="section-header fade-in">
+        <p class="section-eyebrow">Como funciona</p>
+        <h2 class="section-title">Processo</h2>
+      </div>
+      <div class="process-grid">
+        <div class="process-step fade-in">
+          <span class="process-number">01</span>
+          <h3>Orçamento e ficha</h3>
+          <p>Você calcula o valor aqui no site e envia a ficha com todos os detalhes do projeto.</p>
+        </div>
+        <div class="process-step fade-in">
+          <span class="process-number">02</span>
+          <h3>Análise</h3>
+          <p>Avalio a ficha e respondo por e-mail se o projeto foi aceito, com o valor final confirmado.</p>
+        </div>
+        <div class="process-step fade-in">
+          <span class="process-number">03</span>
+          <h3>Sinal de 50%</h3>
+          <p>Aceito o projeto, você recebe um link de pagamento do sinal. O trabalho começa após a confirmação.</p>
+        </div>
+        <div class="process-step fade-in">
+          <span class="process-number">04</span>
+          <h3>Execução</h3>
+          <p>Prévias enviadas por e-mail, com até 2 rodadas de revisão inclusas.</p>
+        </div>
+        <div class="process-step fade-in">
+          <span class="process-number">05</span>
+          <h3>Entrega</h3>
+          <p>Pago o restante (50%) pelo segundo link, você recebe os arquivos finais prontos pra KDP.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="quote-cta" id="orcamento">
+    <div class="container container-narrow">
+      <div class="quote-card fade-in">
+        <h2 class="section-title">Orçamento e ficha do projeto</h2>
+        <p class="quote-desc">
+          Preencha as informações: o valor estimado aparece na hora.
+          Ao enviar, sua ficha entra na fila de análise.
+        </p>
+
+        <form
+          action={FORMSPREE_URL}
+          method="POST"
+          class="quote-form"
+          id="atelier-form"
+        >
+          <fieldset class="form-group">
+            <legend class="form-legend">1 · O que você precisa</legend>
+
+            <label class="form-field">
+              <span class="form-label">Serviço</span>
+              <select name="servico" id="f-servico" required class="form-input">
+                <option value="capa">Capa</option>
+                <option value="diagramacao">Diagramação de miolo</option>
+                <option value="completo" selected>Livro completo (capa + miolo)</option>
+              </select>
+            </label>
+
+            <label class="form-field" data-show="capa">
+              <span class="form-label">Tipo de capa</span>
+              <select name="tipo_capa" id="f-capa" class="form-input">
+                <option value="ebook">Só frente (ebook)</option>
+                <option value="wrap" selected>Wrap completo (impressão: frente, lombada e verso)</option>
+              </select>
+            </label>
+
+            <label class="form-field" data-show="diag">
+              <span class="form-label">Número aproximado de páginas</span>
+              <input type="number" name="paginas" id="f-paginas" min="1" max="2000" value="250" class="form-input" />
+              <span class="form-hint">Se não souber: 1 página de livro ≈ 250 palavras.</span>
+            </label>
+
+            <div class="form-row">
+              <label class="form-field">
+                <span class="form-label">Volumes</span>
+                <select name="volumes" id="f-volumes" class="form-input">
+                  <option value="1" selected>1 livro</option>
+                  <option value="2">2 (série)</option>
+                  <option value="3">3 (série)</option>
+                  <option value="4">4 (série)</option>
+                  <option value="5">5 (série)</option>
+                  <option value="6">6 (série)</option>
+                </select>
+              </label>
+
+              <label class="form-field">
+                <span class="form-label">Prazo</span>
+                <select name="prazo" id="f-prazo" class="form-input">
+                  <option value="normal" selected>Normal (fila da agenda)</option>
+                  <option value="urgente">Urgente (+{PRECOS.urgencia * 100}%)</option>
+                </select>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="estimate" aria-live="polite">
+            <p class="estimate-label">Valor estimado</p>
+            <p class="estimate-value" id="estimate-value">—</p>
+            <p class="estimate-detail" id="estimate-detail"></p>
+            <p class="estimate-pay" id="estimate-pay"></p>
+            <p class="estimate-note">
+              Estimativa pela tabela do atelier. O valor final é confirmado por e-mail
+              na análise da ficha, dentro desta faixa.
+            </p>
+          </div>
+
+          <input type="hidden" name="estimativa" id="f-estimativa" />
+
+          <fieldset class="form-group">
+            <legend class="form-legend">2 · Sobre você</legend>
+            <div class="form-row">
+              <label class="form-field">
+                <span class="form-label">Nome ou pseudônimo</span>
+                <input type="text" name="nome" required class="form-input" />
+              </label>
+              <label class="form-field">
+                <span class="form-label">E-mail</span>
+                <input type="email" name="email" required class="form-input" />
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="form-group">
+            <legend class="form-legend">3 · Sobre a obra</legend>
+            <label class="form-field">
+              <span class="form-label">Título da obra (ou da série)</span>
+              <input type="text" name="titulo" required class="form-input" />
+            </label>
+            <label class="form-field" data-show="capa">
+              <span class="form-label">Nome que vai na capa</span>
+              <input type="text" name="nome_capa" class="form-input" />
+            </label>
+            <label class="form-field">
+              <span class="form-label">Gênero</span>
+              <select name="genero" required class="form-input">
+                <option value="">Selecione...</option>
+                {generosAtendidos.map(g => <option value={g}>{g}</option>)}
+                <option value="Outro">Outro</option>
+              </select>
+            </label>
+            <label class="form-field">
+              <span class="form-label">Sinopse curta</span>
+              <textarea name="sinopse" rows="4" required class="form-input form-textarea"></textarea>
+            </label>
+            <label class="form-field" data-show="capa">
+              <span class="form-label">Direção visual da capa</span>
+              <textarea name="direcao_visual" rows="4" class="form-input form-textarea"
+                placeholder="Clima, cores, elementos, personagens, o que NÃO quer..."></textarea>
+            </label>
+            <label class="form-field">
+              <span class="form-label">Referências (links)</span>
+              <textarea name="referencias" rows="3" class="form-input form-textarea"
+                placeholder="Pinterest, capas que você gosta, livros parecidos..."></textarea>
+            </label>
+            <label class="form-field" data-show="diag">
+              <span class="form-label">Link do manuscrito (opcional agora)</span>
+              <input type="url" name="manuscrito" class="form-input" placeholder="Google Drive, Dropbox..." />
+              <span class="form-hint">Para diagramação, o texto precisa estar final e revisado.</span>
+            </label>
+            <label class="form-field">
+              <span class="form-label">Prazo desejado / data de lançamento</span>
+              <input type="text" name="data_desejada" class="form-input" placeholder="Ex.: março de 2027" />
+            </label>
+          </fieldset>
+
+          <fieldset class="form-group">
+            <legend class="form-legend">4 · Termos</legend>
+            <ul class="terms-list">
+              <li>O envio da ficha não garante a aceitação do projeto.</li>
+              <li>Aceito o projeto, o trabalho começa após o pagamento do sinal de 50%, por link.</li>
+              <li>Os 50% restantes são pagos antes da entrega dos arquivos finais.</li>
+              <li>Até 2 rodadas de revisão inclusas; revisões extras são orçadas à parte.</li>
+              <li>Toda a comunicação acontece por e-mail.</li>
+            </ul>
+            <label class="form-check">
+              <input type="checkbox" name="aceite_termos" value="sim" required />
+              <span>Li e concordo com os termos acima.</span>
+            </label>
+          </fieldset>
+
+          <button type="submit" class="btn" id="f-enviar">Enviar ficha</button>
+          <p class="form-status" id="form-status" role="status"></p>
+        </form>
+
+        <div class="form-success" id="form-success" hidden>
+          <p class="section-eyebrow">Ficha recebida</p>
+          <h3 class="success-title">Obrigada!</h3>
+          <p class="quote-desc">
+            Sua ficha entrou na fila de análise. Você recebe a resposta por e-mail
+            assim que a agenda abrir — se o projeto for aceito, junto vem o valor
+            final e o link do sinal.
+          </p>
+        </div>
+
+        <p class="quote-note">
+          Dúvidas: <a href="mailto:contato@kcineditoria.com.br" class="link-elegant">contato@kcineditoria.com.br</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  </div>
+</BaseLayout>
+
+<script define:vars={{ PRECOS, SUPABASE_URL, SUPABASE_KEY, FORMSPREE_URL }}>
+  const $ = (id) => document.getElementById(id);
+  const form = $('atelier-form');
+  const brl = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+  const r10 = (v) => Math.round(v / 10) * 10;
+
+  function precoDiag(p) {
+    if (p <= 200) return PRECOS.diag200;
+    if (p <= 400) return PRECOS.diag400;
+    return PRECOS.diag400mais;
+  }
+
+  function calcular() {
+    const servico = $('f-servico').value;
+    const temCapa = servico === 'capa' || servico === 'completo';
+    const temDiag = servico === 'diagramacao' || servico === 'completo';
+
+    // mostra/esconde campos conforme o serviço
+    form.querySelectorAll('[data-show="capa"]').forEach(el => el.hidden = !temCapa);
+    form.querySelectorAll('[data-show="diag"]').forEach(el => el.hidden = !temDiag);
+
+    let min = 0, max = 0;
+    if (temCapa) {
+      const c = $('f-capa').value === 'wrap' ? PRECOS.capaWrap : PRECOS.capaEbook;
+      min += c[0]; max += c[1];
+    }
+    if (temDiag) {
+      const paginas = parseInt($('f-paginas').value, 10) || 0;
+      const d = precoDiag(paginas);
+      min += d[0]; max += d[1];
+    }
+    if (servico === 'completo') {
+      min *= 1 - PRECOS.descontoCompleto;
+      max *= 1 - PRECOS.descontoCompleto;
+    }
+
+    // série: cada volume extra tem desconto progressivo
+    const volumes = parseInt($('f-volumes').value, 10);
+    let fator = 0;
+    for (let v = 0; v < volumes; v++) {
+      fator += 1 - Math.min(v * PRECOS.descontoSeriePorVolume, PRECOS.descontoSerieMax);
+    }
+    min *= fator; max *= fator;
+
+    const urgente = $('f-prazo').value === 'urgente';
+    if (urgente) { min *= 1 + PRECOS.urgencia; max *= 1 + PRECOS.urgencia; }
+
+    min = r10(min); max = r10(max);
+
+    const texto = `${brl(min)} – ${brl(max)}`;
+    $('estimate-value').textContent = texto;
+    const partes = [];
+    if (volumes > 1) partes.push(`${volumes} volumes, com desconto progressivo de série`);
+    if (servico === 'completo') partes.push(`${PRECOS.descontoCompleto * 100}% de desconto do pacote completo`);
+    if (urgente) partes.push(`inclui +${PRECOS.urgencia * 100}% de urgência`);
+    $('estimate-detail').textContent = partes.join(' · ');
+    $('estimate-pay').textContent = `Sinal de 50%: ${brl(r10(min / 2))} – ${brl(r10(max / 2))}`;
+    $('f-estimativa').value = texto + (partes.length ? ` (${partes.join('; ')})` : '');
+  }
+
+  form.addEventListener('input', calcular);
+  form.addEventListener('change', calcular);
+  calcular();
+
+  // ---- Envio: salva a ficha no painel (Supabase) e avisa por e-mail (Formspree) ----
+  const txt = (name) => {
+    const el = form.elements[name];
+    if (!el || el.closest('[hidden]')) return null;
+    const v = (el.value || '').trim();
+    return v === '' ? null : v;
+  };
+
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const status = $('form-status');
+    const botao = $('f-enviar');
+    botao.disabled = true;
+    status.textContent = 'Enviando...';
+
+    const servico = $('f-servico').value;
+    const temCapa = servico !== 'diagramacao';
+    const temDiag = servico !== 'capa';
+
+    const ficha = {
+      nome: txt('nome'),
+      email: txt('email'),
+      titulo: txt('titulo'),
+      nome_capa: txt('nome_capa'),
+      genero: txt('genero'),
+      servico,
+      tipo_capa: temCapa ? $('f-capa').value : null,
+      paginas: temDiag ? (parseInt($('f-paginas').value, 10) || null) : null,
+      volumes: parseInt($('f-volumes').value, 10),
+      urgente: $('f-prazo').value === 'urgente',
+      sinopse: txt('sinopse'),
+      direcao_visual: txt('direcao_visual'),
+      referencias: txt('referencias'),
+      manuscrito: txt('manuscrito'),
+      data_desejada: txt('data_desejada'),
+      aceite_termos: form.elements['aceite_termos'].checked
+    };
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/atelier_fichas`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(ficha)
+      });
+      if (!res.ok) throw new Error(await res.text());
+    } catch (err) {
+      console.error('Erro ao salvar ficha:', err);
+      status.textContent = 'Não foi possível enviar agora. Tente de novo em alguns minutos.';
+      botao.disabled = false;
+      return;
+    }
+
+    // aviso por e-mail (opcional; não bloqueia se falhar)
+    if (!FORMSPREE_URL.includes('YOUR_FORM_ID')) {
+      try {
+        await fetch(FORMSPREE_URL, {
+          method: 'POST',
+          headers: { 'Accept': 'application/json' },
+          body: new FormData(form)
+        });
+      } catch (err) { console.warn('Aviso por e-mail falhou:', err); }
+    }
+
+    form.hidden = true;
+    $('form-success').hidden = false;
+    $('form-success').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+</script>
+
+<style>
+  .atelier-hero {
+    padding: var(--space-16) 0 var(--space-12);
+    text-align: center;
+  }
+  
+  .atelier-title {
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    color: var(--kcin-gold-light);
+    margin: var(--space-3) 0 var(--space-6);
+    letter-spacing: 0.05em;
+  }
+  
+  .atelier-tagline {
+    font-family: var(--font-serif);
+    font-size: var(--text-xl);
+    color: var(--kcin-parchment);
+    line-height: 1.7;
+  }
+  
+  /* Nota de atelier seletivo */
+  .atelier-note-section {
+    padding: var(--space-8) 0;
+  }
+  
+  .atelier-note {
+    padding: var(--space-8);
+    background: linear-gradient(135deg, 
+      rgba(74, 46, 95, 0.15), 
+      rgba(15, 58, 46, 0.08));
+    border: 1px solid var(--kcin-gold-dim);
+    border-radius: var(--radius-md);
+    position: relative;
+  }
+  
+  .atelier-note::before {
+    content: '❝';
+    position: absolute;
+    top: -8px;
+    left: var(--space-6);
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    color: var(--kcin-gold);
+    background: var(--kcin-night);
+    padding: 0 var(--space-2);
+    line-height: 1;
+  }
+  
+  .atelier-note-text {
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    color: var(--kcin-parchment);
+    line-height: 1.8;
+    font-style: italic;
+    margin: 0;
+    text-align: center;
+  }
+  
+  .atelier-note-text em {
+    color: var(--kcin-gold);
+  }
+  
+  .atelier-philosophy {
+    padding: var(--space-16) 0;
+  }
+  
+  .philosophy-text {
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    color: var(--kcin-parchment);
+    line-height: 1.9;
+    margin-bottom: var(--space-4);
+  }
+  
+  .philosophy-text em {
+    color: var(--kcin-gold);
+    font-style: italic;
+  }
+  
+  .genres-section {
+    padding: var(--space-16) 0;
+  }
+  
+  .genres-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    justify-content: center;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .genre-pill {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    letter-spacing: 0.1em;
+    padding: var(--space-3) var(--space-6);
+    background: rgba(212, 165, 116, 0.08);
+    border: 1px solid var(--kcin-gold-dim);
+    border-radius: 100px;
+    color: var(--kcin-gold-light);
+    transition: all var(--duration-base) var(--ease);
+  }
+  
+  .genre-pill:hover {
+    background: var(--kcin-gold);
+    color: var(--kcin-black);
+    border-color: var(--kcin-gold);
+    transform: scale(1.05);
+  }
+  
+  .services {
+    padding: var(--space-16) 0;
+  }
+  
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-6);
+  }
+  
+  .service-card {
+    padding: var(--space-8);
+    background: rgba(26, 15, 46, 0.5);
+    border: 1px solid rgba(212, 165, 116, 0.2);
+    border-radius: var(--radius-md);
+    position: relative;
+    transition: all var(--duration-base) var(--ease);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .service-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--kcin-gold);
+    box-shadow: var(--shadow-gold);
+  }
+  
+  .service-card.featured {
+    border-color: var(--kcin-gold);
+    background: linear-gradient(135deg, 
+      rgba(74, 46, 95, 0.3), 
+      rgba(26, 15, 46, 0.5));
+  }
+  
+  .service-badge {
+    position: absolute;
+    top: -12px;
+    right: var(--space-4);
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: var(--space-1) var(--space-3);
+    background: var(--kcin-gold);
+    color: var(--kcin-black);
+    border-radius: var(--radius-sm);
+  }
+  
+  .service-name {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    color: var(--kcin-gold-light);
+    margin-bottom: var(--space-1);
+    letter-spacing: 0.05em;
+  }
+  
+  .service-card-tagline {
+    font-family: var(--font-script);
+    font-size: var(--text-lg);
+    color: var(--kcin-gold);
+    margin-bottom: var(--space-4);
+  }
+  
+  .service-desc {
+    font-family: var(--font-serif);
+    font-size: var(--text-sm);
+    color: var(--kcin-parchment);
+    line-height: 1.6;
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid rgba(212, 165, 116, 0.1);
+  }
+  
+  .service-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+    flex: 1;
+  }
+  
+  .service-features li {
+    font-family: var(--font-serif);
+    font-size: var(--text-sm);
+    color: var(--kcin-parchment);
+    padding-left: var(--space-6);
+    position: relative;
+    line-height: 1.5;
+  }
+  
+  .service-features li::before {
+    content: '✦';
+    position: absolute;
+    left: 0;
+    color: var(--kcin-gold);
+  }
+  
+  .service-price {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    color: var(--kcin-gold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-align: center;
+    padding-top: var(--space-4);
+    border-top: 1px solid rgba(212, 165, 116, 0.15);
+    margin: 0;
+  }
+  
+  .process-section {
+    padding: var(--space-16) 0;
+  }
+  
+  .process-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--space-8);
+  }
+  
+  .process-step {
+    text-align: center;
+  }
+  
+  .process-number {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    font-weight: 600;
+    color: var(--kcin-gold-dim);
+    margin-bottom: var(--space-4);
+  }
+  
+  .process-step h3 {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    color: var(--kcin-gold-light);
+    margin-bottom: var(--space-3);
+    letter-spacing: 0.1em;
+  }
+  
+  .process-step p {
+    font-family: var(--font-serif);
+    font-size: var(--text-sm);
+    color: var(--kcin-parchment);
+    line-height: 1.7;
+  }
+  
+  .quote-cta {
+    padding: var(--space-16) 0;
+  }
+  
+  .quote-card {
+    padding: var(--space-12) var(--space-8);
+    background: linear-gradient(135deg, 
+      rgba(74, 46, 95, 0.2), 
+      rgba(15, 58, 46, 0.1));
+    border: 1px solid var(--kcin-gold-dim);
+    border-radius: var(--radius-lg);
+    text-align: center;
+  }
+  
+  .quote-desc {
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    color: var(--kcin-parchment);
+    margin-bottom: var(--space-8);
+  }
+  
+  .quote-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    text-align: left;
+    max-width: 500px;
+    margin: 0 auto var(--space-6);
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+  }
+  
+  @media (max-width: 540px) {
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  
+  .form-label {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    color: var(--kcin-gold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  
+  .form-input {
+    font-family: var(--font-serif);
+    font-size: var(--text-base);
+    padding: var(--space-3) var(--space-4);
+    background: rgba(10, 6, 18, 0.5);
+    border: 1px solid var(--kcin-gold-dim);
+    color: var(--kcin-parchment);
+    border-radius: var(--radius-sm);
+    transition: border-color var(--duration-fast) var(--ease);
+  }
+  
+  .form-input:focus {
+    outline: none;
+    border-color: var(--kcin-gold);
+  }
+  
+  .form-textarea {
+    resize: vertical;
+    min-height: 120px;
+    font-family: var(--font-serif);
+  }
+  
+  .quote-note {
+    font-family: var(--font-serif);
+    font-size: var(--text-sm);
+    color: var(--kcin-ash);
+    font-style: italic;
+    margin-top: var(--space-4);
+  }
+
+  /* ---- Orçamento automático ---- */
+  .form-group {
+    border: 1px solid rgba(212, 165, 116, 0.2);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .form-legend {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    color: var(--kcin-gold-light);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0 var(--space-2);
+  }
+
+  .form-hint {
+    font-family: var(--font-serif);
+    font-size: var(--text-xs);
+    color: var(--kcin-ash);
+    font-style: italic;
+  }
+
+  [hidden] { display: none !important; }
+
+  .estimate {
+    text-align: center;
+    padding: var(--space-6);
+    border: 1px solid var(--kcin-gold);
+    border-radius: var(--radius-md);
+    background: rgba(212, 165, 116, 0.06);
+  }
+
+  .estimate-label {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    color: var(--kcin-gold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  .estimate-value {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    color: var(--kcin-gold-light);
+    margin: var(--space-2) 0;
+  }
+
+  .estimate-detail,
+  .estimate-pay {
+    font-family: var(--font-serif);
+    font-size: var(--text-sm);
+    color: var(--kcin-parchment);
+    margin: 0 0 var(--space-2);
+  }
+
+  .estimate-note {
+    font-family: var(--font-serif);
+    font-size: var(--text-xs);
+    color: var(--kcin-ash);
+    font-style: italic;
+    margin: var(--space-2) 0 0;
+  }
+
+  .terms-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: 0;
+  }
+
+  .terms-list li {
+    font-family: var(--font-serif);
+    font-size: var(--text-sm);
+    color: var(--kcin-parchment);
+    padding-left: var(--space-6);
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .terms-list li::before {
+    content: '✦';
+    position: absolute;
+    left: 0;
+    color: var(--kcin-gold);
+  }
+
+  .form-check {
+    display: flex;
+    gap: var(--space-3);
+    align-items: flex-start;
+    font-family: var(--font-serif);
+    font-size: var(--text-sm);
+    color: var(--kcin-parchment);
+    cursor: pointer;
+  }
+
+  .form-status {
+    font-family: var(--font-serif);
+    font-size: var(--text-sm);
+    color: var(--kcin-gold-light);
+    text-align: center;
+    min-height: 1.2em;
+    margin: 0;
+  }
+
+  .success-title {
+    font-family: var(--font-display);
+    color: var(--kcin-gold-light);
+    margin: var(--space-2) 0 var(--space-4);
+  }
+
+  .form-check input {
+    margin-top: 0.3em;
+    accent-color: var(--kcin-gold);
+  }
+</style>
+
+<style is:global>
+  /* ===== Versão clara do Atelier (teste) ===== */
+  .atelier-light {
+    --kcin-parchment: #2E2438;
+    --kcin-gold-light: #4A2E5F;
+    --kcin-gold: #8A5A22;
+    --kcin-gold-dim: #C7AC8B;
+    --kcin-ash: #6B6275;
+    --kcin-black: #FFFFFF;
+    --kcin-night: #F3EFF5;
+    --al-paper: #F3EFF5;
+    --al-card: #FFFFFF;
+    --al-sage: #5F7D6B;
+    background: var(--al-paper);
+    color: var(--kcin-parchment);
+    padding-bottom: var(--space-12);
+  }
+  .atelier-light .section-eyebrow { color: var(--al-sage); }
+
+  .al-hero { padding: var(--space-16) 0 var(--space-12); }
+  .al-hero-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: var(--space-12);
+    align-items: center;
+  }
+  .al-kicker {
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    font-style: italic;
+    color: var(--al-sage);
+    margin: 0 0 var(--space-3);
+  }
+  .al-title {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: clamp(2.3rem, 4.6vw, 3.6rem);
+    line-height: 1.08;
+    color: #4A2E5F;
+    letter-spacing: -0.01em;
+    margin: 0 0 var(--space-6);
+    text-wrap: balance;
+  }
+  .al-lead {
+    font-family: var(--font-serif);
+    font-size: var(--text-xl);
+    line-height: 1.65;
+    color: #2E2438;
+    max-width: 34em;
+    margin: 0 0 var(--space-8);
+  }
+  .al-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+  .al-btn {
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: background-color .2s ease, color .2s ease;
+  }
+  .al-btn-main { background: #4A2E5F; color: #fff; }
+  .al-btn-main:hover { background: #3A2349; }
+  .al-btn-soft { color: #4A2E5F; box-shadow: inset 0 0 0 1.5px #4A2E5F; }
+  .al-btn-soft:hover { background: rgba(74,46,95,.08); }
+  .al-btn:focus-visible { outline: 3px solid var(--al-sage); outline-offset: 3px; }
+
+  /* leque de capas: o elemento marcante da página */
+  .al-fan { position: relative; height: 420px; }
+  .al-fan img {
+    position: absolute;
+    width: 190px;
+    aspect-ratio: 376 / 600;
+    object-fit: cover;
+    border-radius: 3px 6px 6px 3px;
+    box-shadow: 0 18px 30px -14px rgba(46,36,56,.55);
+    top: 50%; left: 50%;
+    transform-origin: 50% 120%;
+    transition: transform .35s ease;
+  }
+  .al-fan-1 { transform: translate(-50%,-50%) rotate(-24deg) translateX(-150px); }
+  .al-fan-2 { transform: translate(-50%,-50%) rotate(-12deg) translateX(-75px); }
+  .al-fan-3 { transform: translate(-50%,-50%) rotate(0deg); z-index: 3; }
+  .al-fan-4 { transform: translate(-50%,-50%) rotate(12deg) translateX(75px); z-index: 2; }
+  .al-fan-5 { transform: translate(-50%,-50%) rotate(24deg) translateX(150px); z-index: 1; }
+  .al-fan-1 { z-index: 1; } .al-fan-2 { z-index: 2; }
+  .al-fan:hover .al-fan-1 { transform: translate(-50%,-50%) rotate(-30deg) translateX(-185px); }
+  .al-fan:hover .al-fan-2 { transform: translate(-50%,-50%) rotate(-15deg) translateX(-95px); }
+  .al-fan:hover .al-fan-4 { transform: translate(-50%,-50%) rotate(15deg) translateX(95px); }
+  .al-fan:hover .al-fan-5 { transform: translate(-50%,-50%) rotate(30deg) translateX(185px); }
+
+  .al-prices { padding: var(--space-8) 0; }
+  .al-price-list {
+    list-style: none; margin: 0 auto; padding: var(--space-6) var(--space-4);
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    max-width: 860px;
+    background: var(--al-card);
+    border-radius: 14px;
+    box-shadow: 0 1px 0 #E4DCE8, 0 10px 30px -20px rgba(74,46,95,.35);
+  }
+  .al-price-list li {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 0 var(--space-4);
+  }
+  .al-price-list li + li { border-left: 1px solid #E4DCE8; }
+  .al-price-name { font-family: var(--font-serif); font-size: var(--text-xl); font-weight: 600; color: #4A2E5F; }
+  .al-price-value { font-family: var(--font-serif); font-size: var(--text-lg); color: #2E2438; }
+  .al-price-note {
+    text-align: center; font-family: var(--font-serif); font-style: italic;
+    color: #6B6275; margin: var(--space-4) 0 0; font-size: var(--text-base);
+  }
+
+  .al-styles { padding: var(--space-12) 0; }
+  .al-h2 {
+    font-family: var(--font-serif); font-weight: 600;
+    font-size: clamp(1.8rem, 3vw, 2.4rem); color: #4A2E5F;
+    margin: 0 0 var(--space-3); text-align: center;
+  }
+  .al-p {
+    font-family: var(--font-serif); font-size: var(--text-lg); line-height: 1.7;
+    color: #2E2438; max-width: 36em; margin: 0 auto var(--space-8); text-align: center;
+  }
+  .al-shelf {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-4);
+  }
+  .al-shelf figure { margin: 0; }
+  .al-shelf img {
+    width: 100%; aspect-ratio: 376 / 600; object-fit: cover; display: block;
+    border-radius: 2px 5px 5px 2px;
+    box-shadow: 0 12px 22px -14px rgba(46,36,56,.6);
+  }
+  .al-shelf figcaption {
+    font-family: var(--font-serif); font-style: italic; text-align: center;
+    color: #6B6275; margin-top: var(--space-2); font-size: var(--text-base);
+  }
+
+  /* serviços, processo e formulário no papel claro */
+  .atelier-light .service-card { background: var(--al-card); border-color: #E4DCE8; }
+  .atelier-light .service-card.featured { background: #FBF7FC; border-color: #4A2E5F; }
+  .atelier-light .service-card:hover { box-shadow: 0 14px 30px -18px rgba(74,46,95,.45); }
+  .atelier-light .service-badge { background: #4A2E5F; color: #fff; }
+  .atelier-light .service-card-tagline { color: var(--al-sage); }
+  .atelier-light .quote-card { background: var(--al-card); border-color: #E4DCE8; }
+  .atelier-light .form-input { background: #FBF9FC; color: #2E2438; border-color: #CFC3D6; }
+  .atelier-light .form-input:focus { border-color: #4A2E5F; outline: 2px solid rgba(74,46,95,.2); }
+  .atelier-light .form-group { border-color: #E4DCE8; }
+  .atelier-light .estimate { background: #F6F1F7; border-color: #4A2E5F; }
+  .atelier-light .btn { background: #4A2E5F; border-color: #4A2E5F; color: #fff; }
+  .atelier-light .btn:hover { background: #3A2349; color: #fff; }
+  .atelier-light .process-number { color: #C7AC8B; }
+  .atelier-light .divider-ornament { color: var(--kcin-gold); }
+
+  @media (max-width: 900px) {
+    .al-hero-grid { grid-template-columns: 1fr; gap: var(--space-8); }
+    .al-fan { height: 320px; }
+    .al-fan img { width: 140px; }
+    .al-shelf { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 560px) {
+    .al-fan { height: 260px; }
+    .al-fan img { width: 112px; }
+    .al-fan-1 { transform: translate(-50%,-50%) rotate(-24deg) translateX(-90px); }
+    .al-fan-2 { transform: translate(-50%,-50%) rotate(-12deg) translateX(-45px); }
+    .al-fan-4 { transform: translate(-50%,-50%) rotate(12deg) translateX(45px); }
+    .al-fan-5 { transform: translate(-50%,-50%) rotate(24deg) translateX(90px); }
+    .al-price-list { grid-template-columns: 1fr; gap: var(--space-4); }
+    .al-price-list li + li { border-left: 0; border-top: 1px solid #E4DCE8; padding-top: var(--space-4); }
+    .al-shelf { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .al-fan img { transition: none; }
+  }
+</style>
