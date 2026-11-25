@@ -71,8 +71,8 @@ const navItems = [
       
       <nav class="nav" aria-label="Navegação principal">
         {navItems.slice(1).map(i => (
-          <a href={i.href} class="nav-link nav-pill" aria-current={path === i.href ? 'page' : undefined}>
-            <Icon name={i.icon} size={18} /><span>{i.label}</span>
+          <a href={i.href} class="nav-link nav-pill" title={i.label} aria-label={i.label} aria-current={path === i.href ? 'page' : undefined}>
+            <Icon name={i.icon} size={20} /><span class="sr-only">{i.label}</span>
           </a>
         ))}
       </nav>
@@ -91,8 +91,8 @@ const navItems = [
 
   <nav class="tabbar" aria-label="Navegação">
     {navItems.map(i => (
-      <a href={i.href} class="tab" aria-current={path === i.href ? 'page' : undefined}>
-        <Icon name={i.icon} size={22} /><span>{i.label}</span>
+      <a href={i.href} class="tab" title={i.label} aria-label={i.label} aria-current={path === i.href ? 'page' : undefined}>
+        <Icon name={i.icon} size={24} /><span class="sr-only">{i.label}</span>
       </a>
     ))}
   </nav>

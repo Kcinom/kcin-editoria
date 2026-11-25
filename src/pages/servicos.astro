@@ -105,8 +105,8 @@ const brl = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL
           Você não precisa saber termos técnicos: a ficha pergunta tudo o que eu preciso.
         </p>
         <div class="al-actions">
-          <a href="#orcamento" class="al-btn al-btn-main"><Icon name="calc" size={18} />Orçamento</a>
-          <a href="#processo" class="al-btn al-btn-soft"><Icon name="steps" size={18} />Como funciona</a>
+          <a href="#orcamento" class="al-btn al-btn-main al-round" title="Orçamento" aria-label="Orçamento"><Icon name="calc" size={22} /></a>
+          <a href="#processo" class="al-btn al-btn-soft al-round" title="Como funciona" aria-label="Como funciona"><Icon name="steps" size={22} /></a>
         </div>
       </div>
       <div class="al-fan" aria-label="Algumas capas feitas no atelier">
@@ -363,7 +363,7 @@ const brl = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL
             </label>
           </fieldset>
 
-          <button type="submit" class="btn btn-icon" id="f-enviar"><Icon name="send" size={18} />Enviar ficha</button>
+          <button type="submit" class="btn btn-icon btn-round" id="f-enviar" title="Enviar ficha" aria-label="Enviar ficha"><Icon name="send" size={22} /></button>
           <p class="form-status" id="form-status" role="status"></p>
         </form>
 

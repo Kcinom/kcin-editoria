@@ -550,3 +550,19 @@ body section { scroll-margin-top: 90px; }
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
 }
+
+
+/* ===== Botões só com símbolo ===== */
+.sr-only {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+body .nav-pill { width: 42px; height: 42px; padding: 0 !important; justify-content: center; }
+body .btn-round, body .al-round {
+  width: 52px; height: 52px; padding: 0 !important; border-radius: 50% !important;
+  display: inline-flex !important; align-items: center; justify-content: center; gap: 0 !important;
+}
+body .card-action-text { width: 40px; height: 40px; padding: 0 !important; justify-content: center; border-radius: 50% !important; }
+@media (max-width: 768px) {
+  .tab { padding: 10px 2px !important; }
+}
