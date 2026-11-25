@@ -2,9 +2,9 @@
 import PosterCard from './PosterCard.astro';
 import Icon from './Icon.astro';
 import type { Livro } from '../data/livros';
-const { title, books } = Astro.props as { title: string; books: Livro[] };
+const { title, books, big = false } = Astro.props as { title: string; books: Livro[]; big?: boolean };
 ---
-<section class="row" aria-label={title}>
+<section class={`row${big ? ' row-big' : ''}`} aria-label={title}>
   <div class="row-head">
     <h2 class="row-title">{title}</h2>
     <div class="row-arrows">

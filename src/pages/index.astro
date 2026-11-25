@@ -3,13 +3,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import BookRow from '../components/BookRow.astro';
 import BookSheet from '../components/BookSheet.astro';
 import Icon from '../components/Icon.astro';
-import { livros, generos, fileiras } from '../data/livros';
+import { livros, generos, fileiras, lancamentos, maisLidos, destaque as pegarDestaque } from '../data/livros';
 
 // Destaque da vitrine (troque o slug para mudar o livro em destaque)
-const destaque = livros.find(l => l.slug === 'sussurro-do-dragao-i')!;
+const destaque = pegarDestaque();
 const volumesSerie = livros.filter(l => l.series && l.series === destaque.series).length;
 const rows = fileiras();
-const doWattpad = livros.filter(l => l.wattpadLink);
+
 ---
 
 <BaseLayout title="Editora indie multigênero">
@@ -20,11 +20,11 @@ const doWattpad = livros.filter(l => l.wattpadLink);
         <img src={destaque.cover} alt={`Capa de ${destaque.title}`} />
       </button>
       <div class="feature-info">
-        <p class="feature-kicker">{destaque.series ? `Série · ${volumesSerie} volumes` : 'Destaque'}</p>
+        <p class="feature-kicker">Novo para ler{destaque.series ? ` · série com ${volumesSerie} volumes` : ''}</p>
         <h1 class="feature-title">{destaque.title}</h1>
         <div class="sheet-chips"><span class="chip">{generos[destaque.genre]}</span></div>
         <div class="feature-actions">
-          {destaque.wattpadLink && (
+          {destaque.wattpadLink && !destaque.rascunho && (
             <a href={destaque.wattpadLink} target="_blank" rel="noopener" class="icon-btn icon-btn-main" aria-label="Ler no Wattpad" title="Ler no Wattpad"><Icon name="play" size={22} /></a>
           )}
           <button type="button" class="icon-btn" data-slug={destaque.slug} aria-label="Detalhes" title="Detalhes"><Icon name="info" size={22} /></button>
@@ -34,8 +34,9 @@ const doWattpad = livros.filter(l => l.wattpadLink);
     </section>
 
     <div class="container rows">
-      {rows.slice(0, 3).map(r => <BookRow title={r.title} books={r.books} />)}
-      {doWattpad.length > 0 && <BookRow title="Leia no Wattpad" books={doWattpad} />}
+      <BookRow title="Novos para ler" books={lancamentos()} big />
+      <BookRow title="Mais lidos" books={maisLidos()} big />
+      {rows.map(r => <BookRow title={r.title} books={r.books} />)}
     </div>
 
     <section class="container">

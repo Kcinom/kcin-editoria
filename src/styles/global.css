@@ -907,3 +907,12 @@ body main { padding-top: 84px !important; }
 @media (min-width: 769px) and (prefers-reduced-motion: reduce) {
   .rail, .rail-ico { transition: none !important; }
 }
+
+/* livros pra ler agora: pôster maior e selo de leitura */
+.row-big .poster { width: clamp(140px, 17vw, 210px); }
+.row-big .row-title { color: #F7E3BF; font-size: clamp(1.1rem, 1rem + .45vw, 1.35rem); }
+.poster-read {
+  position: absolute; left: 6px; bottom: 6px; width: 26px; height: 26px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #1A0F2E; background: rgba(232,200,150,.95); box-shadow: 0 4px 10px -4px rgba(0,0,0,.7);
+}

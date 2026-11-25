@@ -5,11 +5,13 @@ export interface Livro {
   title: string; subtitle?: string; cover: string; slug: string; genre: string;
   series?: string; volume?: number; authors: string[];
   isWattpad?: boolean; wattpadLink?: string; amazonLink?: string; synopsis?: string;
+  /** história ainda em rascunho no Wattpad (link não abre pro público) */
+  rascunho?: boolean;
 }
 
 export const livros: Livro[] = [
   // ===== Sussurro do Dragão (5 vol) =====
-  { title: 'O Sussurro do Dragão', cover: '/capas/sussurro-i.jpg', slug: 'sussurro-do-dragao-i', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 1, authors: ['Kcinom Nilpoj'], isWattpad: true, wattpadLink: 'https://www.wattpad.com/story/403318755-a-princesa-e-o-drag%C3%A3o' },
+  { title: 'O Sussurro do Dragão', cover: '/capas/sussurro-i.jpg', slug: 'sussurro-do-dragao-i', rascunho: true, genre: 'romantasy', series: 'Sussurro do Dragão', volume: 1, authors: ['Kcinom Nilpoj'], isWattpad: true, wattpadLink: 'https://www.wattpad.com/story/403318755-a-princesa-e-o-drag%C3%A3o' },
   { title: 'O Silêncio do Dragão', cover: '/capas/sussurro-ii.jpg', slug: 'sussurro-do-dragao-ii', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 2, authors: ['Kcinom Nilpoj'] },
   { title: 'A Fúria do Dragão', cover: '/capas/sussurro-iii.jpg', slug: 'sussurro-do-dragao-iii', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 3, authors: ['Kcinom Nilpoj'] },
   { title: 'O Rugido do Dragão', cover: '/capas/sussurro-iv.jpg', slug: 'sussurro-do-dragao-iv', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 4, authors: ['Kcinom Nilpoj'] },
@@ -81,4 +83,35 @@ export function fileiras() {
     if (books.length) out.push({ title: label, books });
   }
   return out;
+}
+
+/**
+ * Leituras no Wattpad (atualize de vez em quando copiando do perfil).
+ * Última atualização: 23/11/2026.
+ */
+export const leituras: Record<string, number> = {
+  'fantastic-war': 470,
+  'akiko': 74,
+  'a-princesa-jamais-se-casara': 72,
+  'reflex': 32,
+  'o-principe-nunca-existiu': 11,
+};
+
+/** Número da história no Wattpad: quanto maior, mais recente. */
+const ordemWattpad = (l: Livro) => Number(l.wattpadLink?.match(/story\/(\d+)/)?.[1] ?? 0);
+
+/** Livros que dá pra ler agora (link público) */
+export const paraLer = () => livros.filter(l => l.wattpadLink && !l.rascunho);
+/** Do mais recente pro mais antigo */
+export const lancamentos = () => [...paraLer()].sort((a, b) => ordemWattpad(b) - ordemWattpad(a));
+/** Do mais lido pro menos lido */
+export const maisLidos = () => [...paraLer()].sort((a, b) => (leituras[b.slug] ?? 0) - (leituras[a.slug] ?? 0));
+/** Destaque: o lançamento mais recente (se for vol. 2+, mostra o vol. 1 da série) */
+export function destaque() {
+  const novo = lancamentos()[0];
+  if (novo?.series && (novo.volume ?? 1) > 1) {
+    const v1 = paraLer().find(l => l.series === novo.series && l.volume === 1);
+    if (v1) return v1;
+  }
+  return novo ?? livros[0];
 }
