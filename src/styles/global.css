@@ -37,27 +37,27 @@
   --font-body: 'Lora', Georgia, serif;
   
   /* Escala tipográfica fluida (clamp pra responsivo natural) */
-  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
-  --text-sm: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
-  --text-base: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
-  --text-lg: clamp(1.125rem, 1rem + 0.625vw, 1.375rem);
-  --text-xl: clamp(1.375rem, 1.2rem + 0.875vw, 1.75rem);
-  --text-2xl: clamp(1.75rem, 1.5rem + 1.25vw, 2.5rem);
-  --text-3xl: clamp(2.25rem, 1.875rem + 1.875vw, 3.5rem);
-  --text-4xl: clamp(3rem, 2.5rem + 2.5vw, 5rem);
-  --text-display: clamp(4rem, 3rem + 5vw, 8rem);
+  --text-xs: clamp(0.72rem, 0.7rem + 0.1vw, 0.8rem);
+  --text-sm: clamp(0.82rem, 0.8rem + 0.15vw, 0.9rem);
+  --text-base: clamp(0.95rem, 0.9rem + 0.2vw, 1.02rem);
+  --text-lg: clamp(1.02rem, 0.98rem + 0.25vw, 1.15rem);
+  --text-xl: clamp(1.15rem, 1.05rem + 0.4vw, 1.35rem);
+  --text-2xl: clamp(1.35rem, 1.2rem + 0.7vw, 1.75rem);
+  --text-3xl: clamp(1.6rem, 1.4rem + 1vw, 2.25rem);
+  --text-4xl: clamp(2rem, 1.7rem + 1.5vw, 3rem);
+  --text-display: clamp(2.6rem, 2rem + 3vw, 4.5rem);
   
-  /* Espaçamento (sistema 4px-base) */
+  /* Espaçamento (sistema 4px-base) — mais compacto */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-  --space-12: 3rem;
-  --space-16: 4rem;
-  --space-24: 6rem;
-  --space-32: 8rem;
+  --space-6: 1.25rem;
+  --space-8: 1.75rem;
+  --space-12: 2.25rem;
+  --space-16: 3rem;
+  --space-24: 4rem;
+  --space-32: 5rem;
   
   /* Layout */
   --container-max: 1280px;
@@ -479,4 +479,74 @@ body .btn-ghost {
 @media (prefers-reduced-transparency: reduce) {
   :root { --glass-bg: rgba(24,15,40,.92); }
   body.theme-light { --glass-bg: rgba(255,255,255,.95); }
+}
+
+
+/* =====================================================================
+   NAVEGAÇÃO COM ÍCONES + TRANSIÇÕES SUAVES
+   ===================================================================== */
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .28s; }
+.site-header, .tabbar { view-transition-name: chrome-nav; }
+.tabbar { view-transition-name: chrome-tabbar; }
+
+.icon { flex: 0 0 auto; display: inline-block; vertical-align: middle; }
+body .btn-icon, body .al-btn { display: inline-flex; align-items: center; gap: .5rem; }
+body .btn { padding: .65rem 1.3rem; font-size: var(--text-xs); }
+
+/* menu do topo: pílulas com ícone */
+body .site-header { padding: .55rem 0 !important; }
+body .nav { gap: .25rem !important; }
+body .nav-pill {
+  display: inline-flex !important; align-items: center; gap: .45rem;
+  padding: .45rem .85rem; border-radius: 999px;
+  font-family: var(--font-body) !important; font-size: .9rem !important;
+  letter-spacing: .01em !important; text-transform: none !important;
+  transition: background-color .2s ease, color .2s ease;
+}
+body .nav-pill::after { display: none !important; }
+body .nav-pill:hover { background: rgba(255,255,255,.08); }
+body .nav-pill[aria-current="page"] { background: rgba(232,200,150,.9); color: #1A0F2E !important; }
+body .logo-svg { height: 28px !important; }
+
+/* barra inferior estilo app (só no celular) */
+.tabbar { display: none; }
+@media (max-width: 768px) {
+  body .nav, body .nav-toggle { display: none !important; }
+  body .site-header { justify-content: center; }
+  .tabbar {
+    display: flex; justify-content: space-around; align-items: stretch;
+    position: fixed; left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom));
+    z-index: 120; padding: 6px;
+    border-radius: 22px;
+    background: rgba(18, 11, 30, 0.68);
+    -webkit-backdrop-filter: blur(20px) saturate(150%); backdrop-filter: blur(20px) saturate(150%);
+    border: 1px solid rgba(255,255,255,.12);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 16px 32px -16px rgba(0,0,0,.8);
+  }
+  .tab {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 6px 2px; border-radius: 16px; text-decoration: none;
+    color: rgba(245,235,216,.72); font-size: .66rem; font-family: var(--font-body);
+    transition: background-color .2s ease, color .2s ease;
+  }
+  .tab[aria-current="page"] { color: #1A0F2E; background: rgba(232,200,150,.92); }
+  body { padding-bottom: 86px; }
+}
+
+/* cards do acervo: ação em ícone */
+body .card-action-text {
+  display: inline-flex !important; align-items: center; gap: .35rem;
+  letter-spacing: .04em !important; text-transform: none !important;
+  font-family: var(--font-body) !important; font-size: .85rem !important;
+  border-radius: 999px !important; padding: .4rem .9rem !important;
+}
+@media (hover: none) {
+  body .card-hover-action { opacity: 1 !important; transform: none !important; background: none !important; padding: 8px !important; text-align: right !important; }
+}
+
+/* seções menos espaçadas */
+body section { scroll-margin-top: 90px; }
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
 }

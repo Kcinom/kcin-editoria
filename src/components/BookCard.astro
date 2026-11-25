@@ -1,4 +1,5 @@
 ---
+import Icon from './Icon.astro';
 export interface Props {
   title: string;
   subtitle?: string;
@@ -61,19 +62,23 @@ const cardLabel = genreLabel[genre];
 // 3. Senão → página interna
 let href: string;
 let isExternal = false;
-let actionText = 'Detalhes →';
+let actionText = 'Detalhes';
+let actionIcon = 'arrow';
 
 if (isWattpad && wattpadLink) {
   href = wattpadLink;
   isExternal = true;
-  actionText = 'Ler no Wattpad →';
+  actionText = 'Ler';
+  actionIcon = 'read';
 } else if (isWattpad) {
   href = `/livros/${slug}`;
-  actionText = 'Sobre a fanfic →';
+  actionText = 'Sobre';
+  actionIcon = 'info';
 } else if (amazonLink) {
   href = amazonLink;
   isExternal = true;
-  actionText = 'Ver na Amazon →';
+  actionText = 'Comprar';
+  actionIcon = 'cart';
 } else {
   href = `/livros/${slug}`;
 }
@@ -105,7 +110,7 @@ if (isWattpad && wattpadLink) {
     </div>
     
     <div class="card-hover-action">
-      <span class="card-action-text">{actionText}</span>
+      <span class="card-action-text"><Icon name={actionIcon} size={16} />{actionText}</span>
     </div>
   </div>
   

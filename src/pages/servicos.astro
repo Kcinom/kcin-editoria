@@ -1,4 +1,5 @@
 ---
+import Icon from '../components/Icon.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SUPABASE_URL, SUPABASE_KEY, FORMSPREE_URL } from '../lib/atelier-config.js';
 
@@ -104,8 +105,8 @@ const brl = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL
           Você não precisa saber termos técnicos: a ficha pergunta tudo o que eu preciso.
         </p>
         <div class="al-actions">
-          <a href="#orcamento" class="al-btn al-btn-main">Calcular meu orçamento</a>
-          <a href="#processo" class="al-btn al-btn-soft">Ver como funciona</a>
+          <a href="#orcamento" class="al-btn al-btn-main"><Icon name="calc" size={18} />Orçamento</a>
+          <a href="#processo" class="al-btn al-btn-soft"><Icon name="steps" size={18} />Como funciona</a>
         </div>
       </div>
       <div class="al-fan" aria-label="Algumas capas feitas no atelier">
@@ -362,7 +363,7 @@ const brl = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL
             </label>
           </fieldset>
 
-          <button type="submit" class="btn" id="f-enviar">Enviar ficha</button>
+          <button type="submit" class="btn btn-icon" id="f-enviar"><Icon name="send" size={18} />Enviar ficha</button>
           <p class="form-status" id="form-status" role="status"></p>
         </form>
 
@@ -1011,7 +1012,7 @@ const brl = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL
   }
   .atelier-light .section-eyebrow { color: var(--al-sage); }
 
-  .al-hero { padding: var(--space-16) 0 var(--space-12); }
+  .al-hero { padding: var(--space-12) 0 var(--space-8); }
   .al-hero-grid {
     display: grid;
     grid-template-columns: 1.05fr 1fr;
@@ -1028,7 +1029,7 @@ const brl = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL
   .al-title {
     font-family: var(--font-serif);
     font-weight: 600;
-    font-size: clamp(2.3rem, 4.6vw, 3.6rem);
+    font-size: clamp(1.9rem, 3.4vw, 2.7rem);
     line-height: 1.08;
     color: #4A2E5F;
     letter-spacing: -0.01em;
@@ -1060,10 +1061,10 @@ const brl = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL
   .al-btn:focus-visible { outline: 3px solid var(--al-sage); outline-offset: 3px; }
 
   /* leque de capas: o elemento marcante da página */
-  .al-fan { position: relative; height: 420px; }
+  .al-fan { position: relative; height: 340px; }
   .al-fan img {
     position: absolute;
-    width: 190px;
+    width: 150px;
     aspect-ratio: 376 / 600;
     object-fit: cover;
     border-radius: 3px 6px 6px 3px;

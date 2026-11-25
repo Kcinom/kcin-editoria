@@ -1,4 +1,5 @@
 ---
+import Icon from '../components/Icon.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import UniverseCard from '../components/UniverseCard.astro';
 
@@ -77,8 +78,8 @@ const universos = [
       </p>
       
       <div class="hero-actions fade-in">
-        <a href="/acervo" class="btn">Explorar acervo</a>
-        <a href="/servicos" class="btn btn-ghost">Atelier</a>
+        <a href="/acervo" class="btn btn-icon"><Icon name="book" size={18} />Acervo</a>
+        <a href="/servicos" class="btn btn-ghost btn-icon"><Icon name="brush" size={18} />Atelier</a>
       </div>
     </div>
     
@@ -126,7 +127,7 @@ const universos = [
           diagramação de miolo completa, ou o livro inteiro pronto pra publicar. 
           Cada serviço pode ser contratado sozinho.
         </p>
-        <a href="/servicos" class="btn">Conhecer o atelier</a>
+        <a href="/servicos" class="btn btn-icon"><Icon name="brush" size={18} />Ver o atelier</a>
       </div>
     </div>
   </section>
@@ -135,7 +136,7 @@ const universos = [
 
 <style>
   .hero {
-    min-height: calc(100vh - 100px);
+    min-height: 72vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -181,7 +182,7 @@ const universos = [
   }
   
   .hero-logo-svg {
-    width: clamp(280px, 50vw, 540px);
+    width: clamp(200px, 34vw, 380px);
     height: auto;
     filter: invert(74%) sepia(33%) saturate(456%) hue-rotate(347deg) brightness(96%) contrast(89%);
     animation: logo-glow 4s ease-in-out infinite;
