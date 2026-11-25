@@ -68,12 +68,13 @@ const navItems = [
     <img src="/capas/kagami-1.jpg" alt="" class="gb gb-4" />
     <img src="/capas/love-greater.jpg" alt="" class="gb gb-5" />
   </div>
-  <aside class="rail" id="rail" aria-label="Menu">
+  <aside class="rail" id="rail" aria-label="Menu" style={`--i:${Math.max(0, navItems.findIndex(n => n.href === path))}`} data-has-active={navItems.some(n => n.href === path) ? 'true' : 'false'}>
+    <span class="rail-dot" aria-hidden="true"></span>
     <a href="/" class="rail-logo" aria-label="KCIN Editoria - Início" title="KCIN Editoria"><img src="/icon-192.png" alt="" /></a>
     <button type="button" class="rail-toggle" id="rail-toggle" aria-label="Abrir menu" aria-expanded="false" title="Abrir menu"><Icon name="right" size={16} /></button>
     <nav class="rail-nav">
-      {navItems.map(i => (
-        <a href={i.href} class="rail-item" title={i.label} aria-current={path === i.href ? 'page' : undefined}>
+      {navItems.map((i, idx) => (
+        <a href={i.href} class="rail-item" data-idx={idx} title={i.label} aria-current={path === i.href ? 'page' : undefined}>
           <span class="rail-ico"><Icon name={i.icon} size={20} /></span><span class="rail-label">{i.label}</span>
         </a>
       ))}
@@ -237,6 +238,19 @@ const navItems = [
       tabbar.querySelectorAll('.tab').forEach(x => x.removeAttribute('aria-current'));
       t.setAttribute('aria-current', 'page');
       tabbar.style.setProperty('--i', t.dataset.idx || '0');
+      setTimeout(() => { location.href = t.href; }, 320);
+    });
+  });
+
+  // menu lateral (recolhido): o círculo desliza na vertical antes de trocar de página
+  rail?.querySelectorAll<HTMLAnchorElement>('.rail-item').forEach(t => {
+    t.addEventListener('click', (e) => {
+      if (t.getAttribute('aria-current') === 'page' || calmo || e.metaKey || e.ctrlKey || rail.classList.contains('open')) return;
+      e.preventDefault();
+      rail.dataset.hasActive = 'true';
+      rail.querySelectorAll('.rail-item').forEach(x => x.removeAttribute('aria-current'));
+      t.setAttribute('aria-current', 'page');
+      rail.style.setProperty('--i', t.dataset.idx || '0');
       setTimeout(() => { location.href = t.href; }, 320);
     });
   });

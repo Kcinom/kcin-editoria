@@ -864,3 +864,46 @@ body main { padding-top: 84px !important; }
 @media (max-width: 768px) and (prefers-reduced-motion: reduce) {
   .tabbar, .tab .icon { transition: none; }
 }
+
+
+/* =====================================================================
+   MENU LATERAL ANIMADO (computador): mesmo encaixe da barra do celular,
+   só que de lado. Vale com o menu recolhido; aberto, mostra os nomes.
+   ===================================================================== */
+@media (min-width: 769px) {
+  .rail {
+    --step: 58px; --first: 109px; --notch: 34px;
+    --y: calc(var(--first) + var(--i) * var(--step));
+    background: none !important; border: 0 !important; box-shadow: none !important;
+    -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+    transition: width .3s cubic-bezier(.2,.8,.2,1), --i .38s cubic-bezier(.3,1.4,.5,1);
+  }
+  .rail::before {
+    content: ''; position: absolute; inset: 0; z-index: -1; border-radius: 30px;
+    background: rgba(18, 11, 30, 0.55);
+    -webkit-backdrop-filter: blur(22px) saturate(150%); backdrop-filter: blur(22px) saturate(150%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.09);
+    -webkit-mask: radial-gradient(circle var(--notch) at 100% var(--y), transparent 96%, #000 100%);
+            mask: radial-gradient(circle var(--notch) at 100% var(--y), transparent 96%, #000 100%);
+  }
+  .rail.open::before, .rail[data-has-active="false"]::before { -webkit-mask: none; mask: none; }
+  .rail-dot {
+    position: absolute; z-index: 0; left: 100%; top: var(--y);
+    width: 52px; height: 52px; border-radius: 50%; transform: translate(-50%, -50%);
+    background: #E8C896;
+    box-shadow: 0 10px 22px -8px rgba(232,200,150,.7), inset 0 1px 0 rgba(255,255,255,.6);
+    transition: opacity .2s ease;
+  }
+  .rail.open .rail-dot, .rail[data-has-active="false"] .rail-dot { opacity: 0; pointer-events: none; }
+  .rail-toggle { top: auto !important; bottom: 22px; right: auto !important; left: 50%; transform: translateX(-50%); }
+  .rail.open .rail-toggle { transform: translateX(-50%) rotate(180deg); }
+  .rail-item { padding: 4px !important; }
+  .rail-ico { transition: transform .38s cubic-bezier(.3,1.4,.5,1), background-color .2s ease, color .2s ease; }
+  .rail:not(.open) .rail-item[aria-current="page"] .rail-ico {
+    background: transparent !important; color: #1A0F2E; border-color: transparent;
+    transform: translateX(36px);
+  }
+}
+@media (min-width: 769px) and (prefers-reduced-motion: reduce) {
+  .rail, .rail-ico { transition: none !important; }
+}
