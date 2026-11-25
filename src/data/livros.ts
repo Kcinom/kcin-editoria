@@ -5,15 +5,20 @@ export interface Livro {
   title: string; subtitle?: string; cover: string; slug: string; genre: string;
   series?: string; volume?: number; authors: string[];
   isWattpad?: boolean; wattpadLink?: string; amazonLink?: string; synopsis?: string;
-  /** história ainda em rascunho no Wattpad (link não abre pro público) */
-  rascunho?: boolean;
   /** 'revisao' = ainda não lançado, em revisão */
-  status?: 'revisao';
+  status?: 'publicado' | 'revisao';
+  /** leituras no Wattpad */
+  leituras?: number;
+  /** data de lançamento (AAAA-MM-DD) */
+  lancadoEm?: string;
 }
 
-export const livros: Livro[] = [
+import { SUPABASE_URL, SUPABASE_KEY } from '../lib/atelier-config.js';
+
+/** Cópia de segurança: usada só se o banco estiver fora do ar na hora de gerar o site */
+const livrosBase: Livro[] = [
   // ===== Sussurro do Dragão (5 vol) =====
-  { title: 'O Sussurro do Dragão', cover: '/capas/sussurro-i.jpg', slug: 'sussurro-do-dragao-i', status: 'revisao', rascunho: true, genre: 'romantasy', series: 'Sussurro do Dragão', volume: 1, authors: ['Kcinom Nilpoj'], isWattpad: true, wattpadLink: 'https://www.wattpad.com/story/403318755-a-princesa-e-o-drag%C3%A3o' },
+  { title: 'O Sussurro do Dragão', cover: '/capas/sussurro-i.jpg', slug: 'sussurro-do-dragao-i', status: 'revisao', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 1, authors: ['Kcinom Nilpoj'], isWattpad: true, wattpadLink: 'https://www.wattpad.com/story/403318755-a-princesa-e-o-drag%C3%A3o' },
   { title: 'O Silêncio do Dragão', cover: '/capas/sussurro-ii.jpg', slug: 'sussurro-do-dragao-ii', status: 'revisao', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 2, authors: ['Kcinom Nilpoj'] },
   { title: 'A Fúria do Dragão', cover: '/capas/sussurro-iii.jpg', slug: 'sussurro-do-dragao-iii', status: 'revisao', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 3, authors: ['Kcinom Nilpoj'] },
   { title: 'O Rugido do Dragão', cover: '/capas/sussurro-iv.jpg', slug: 'sussurro-do-dragao-iv', status: 'revisao', genre: 'romantasy', series: 'Sussurro do Dragão', volume: 4, authors: ['Kcinom Nilpoj'] },
@@ -63,6 +68,36 @@ export const livros: Livro[] = [
   { title: 'Eu não gosto dessa personagem!', subtitle: 'Minhas experiências na escrita de fantasia', cover: '/capas/personagem.jpg', slug: 'eu-nao-gosto-dessa-personagem', genre: 'nonfiction', authors: ['Kcinom Nilpoj'] },
 ];
 
+const leiturasBase: Record<string, number> = {
+  'fantastic-war': 470, 'akiko': 74, 'a-princesa-jamais-se-casara': 72, 'reflex': 32, 'o-principe-nunca-existiu': 11,
+};
+livrosBase.forEach(l => { l.leituras = leiturasBase[l.slug] ?? 0; });
+
+/** Converte uma linha do banco (painel) para o formato do site */
+export function doBanco(r: any): Livro {
+  return {
+    title: r.title, subtitle: r.subtitle ?? undefined, cover: r.cover, slug: r.slug, genre: r.genre,
+    series: r.series ?? undefined, volume: r.volume ?? undefined, authors: ['Kcinom Nilpoj'],
+    isWattpad: !!r.wattpad_link, wattpadLink: r.wattpad_link ?? undefined, amazonLink: r.amazon_link ?? undefined,
+    synopsis: r.synopsis ?? undefined, status: r.status === 'revisao' ? 'revisao' : 'publicado',
+    leituras: r.leituras ?? 0, lancadoEm: r.lancado_em ?? undefined,
+  };
+}
+
+async function carregar(): Promise<Livro[] | null> {
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/livros?select=*&status=neq.oculto&order=ordem.asc`, {
+      headers: { apikey: SUPABASE_KEY }, signal: AbortSignal.timeout(8000),
+    });
+    if (!r.ok) return null;
+    const d = await r.json();
+    return Array.isArray(d) && d.length ? d.map(doBanco) : null;
+  } catch { return null; }
+}
+
+/** Livros do site: vêm do painel (banco); se falhar, usa a cópia de segurança acima */
+export const livros: Livro[] = (await carregar()) ?? livrosBase;
+
 export const generos: Record<string, string> = {
   romantasy: 'Dark Romantasy',
   'fantasy-eastern': 'Fantasia Oriental',
@@ -87,27 +122,19 @@ export function fileiras() {
   return out;
 }
 
-/**
- * Leituras no Wattpad (atualize de vez em quando copiando do perfil).
- * Última atualização: 23/11/2026.
- */
-export const leituras: Record<string, number> = {
-  'fantastic-war': 470,
-  'akiko': 74,
-  'a-princesa-jamais-se-casara': 72,
-  'reflex': 32,
-  'o-principe-nunca-existiu': 11,
-};
 
 /** Número da história no Wattpad: quanto maior, mais recente. */
 const ordemWattpad = (l: Livro) => Number(l.wattpadLink?.match(/story\/(\d+)/)?.[1] ?? 0);
+const dataLanc = (l: Livro) => (l.lancadoEm ? Date.parse(l.lancadoEm) : 0);
 
-/** Livros que dá pra ler agora (link público) */
-export const paraLer = () => livros.filter(l => l.wattpadLink && !l.rascunho);
-/** Do mais recente pro mais antigo */
-export const lancamentos = () => [...paraLer()].sort((a, b) => ordemWattpad(b) - ordemWattpad(a));
+/** Livros que dá pra ler agora (link público e fora de revisão) */
+export const paraLer = () => livros.filter(l => l.wattpadLink && l.status !== 'revisao');
+/** Do mais recente pro mais antigo (data de lançamento; sem data, pela ordem no Wattpad) */
+export const lancamentos = () => [...paraLer()].sort((a, b) => (dataLanc(b) - dataLanc(a)) || (ordemWattpad(b) - ordemWattpad(a)));
 /** Do mais lido pro menos lido */
-export const maisLidos = () => [...paraLer()].sort((a, b) => (leituras[b.slug] ?? 0) - (leituras[a.slug] ?? 0));
+export const maisLidos = () => [...paraLer()].sort((a, b) => (b.leituras ?? 0) - (a.leituras ?? 0));
+/** Ainda não lançados: em revisão */
+export const emRevisao = () => livros.filter(l => l.status === 'revisao');
 /** Destaque: o lançamento mais recente (se for vol. 2+, mostra o vol. 1 da série) */
 export function destaque() {
   const novo = lancamentos()[0];
@@ -117,6 +144,3 @@ export function destaque() {
   }
   return novo ?? livros[0];
 }
-
-/** Ainda não lançados: em revisão */
-export const emRevisao = () => livros.filter(l => l.status === 'revisao');

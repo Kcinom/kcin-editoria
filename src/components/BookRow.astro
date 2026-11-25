@@ -18,12 +18,10 @@ const { title, books, big = false } = Astro.props as { title: string; books: Liv
 </section>
 
 <script>
-  document.querySelectorAll<HTMLElement>('.row').forEach(row => {
-    const track = row.querySelector<HTMLElement>('.row-track')!;
-    row.querySelectorAll<HTMLButtonElement>('.row-arrow').forEach(b => {
-      b.addEventListener('click', () => {
-        track.scrollBy({ left: Number(b.dataset.dir) * track.clientWidth * 0.85, behavior: 'smooth' });
-      });
-    });
+  document.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest('.row-arrow') as HTMLElement | null;
+    if (!b) return;
+    const track = b.closest('.row')?.querySelector<HTMLElement>('.row-track');
+    track?.scrollBy({ left: Number(b.dataset.dir) * track.clientWidth * 0.85, behavior: 'smooth' });
   });
 </script>

@@ -35,7 +35,7 @@ const rows = fileiras();
     </div>
 
     <div id="results" class="container results" hidden>
-      <div class="results-grid">
+      <div class="results-grid" id="results-grid">
         {livros.map(l => <PosterCard livro={l} />)}
       </div>
       <p id="vazio" class="empty" hidden>Nenhum livro encontrado.</p>
@@ -51,7 +51,7 @@ const rows = fileiras();
   const rows = document.getElementById('rows')!;
   const results = document.getElementById('results')!;
   const vazio = document.getElementById('vazio')!;
-  const posters = [...results.querySelectorAll<HTMLElement>('.poster')];
+  const posters = () => [...results.querySelectorAll<HTMLElement>('.poster')];
   let genero = 'all';
 
   function aplicar() {
@@ -60,7 +60,7 @@ const rows = fileiras();
     rows.hidden = filtrando;
     results.hidden = !filtrando;
     let n = 0;
-    posters.forEach(p => {
+    posters().forEach(p => {
       const ok = (genero === 'all' || p.dataset.genre === genero) && (!q || (p.dataset.title || '').includes(q));
       p.hidden = !ok; if (ok) n++;
     });
@@ -73,6 +73,13 @@ const rows = fileiras();
     aplicar();
   }));
   busca.addEventListener('input', aplicar);
+
+  import { atualizar, fileiras, fileira, poster } from '../scripts/acervo-vivo';
+  atualizar((ls) => {
+    rows.innerHTML = fileiras(ls).map(fileira).join('');
+    document.getElementById('results-grid')!.innerHTML = ls.map(poster).join('');
+    aplicar();
+  });
 
   const g = new URLSearchParams(location.search).get('g');
   if (g) chips.find(c => c.dataset.filter === g)?.click();

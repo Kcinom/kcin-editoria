@@ -31,6 +31,7 @@ const dados = livros.map(l => ({ ...l, genreLabel: generos[l.genre] ?? '' }));
   const sheet = document.getElementById('book-sheet') as HTMLDialogElement;
   const data: any[] = JSON.parse(document.getElementById('livros-data')!.textContent || '[]');
   const bySlug = new Map(data.map(l => [l.slug, l]));
+  (window as any).kcinSetLivros = (lista: any[]) => { bySlug.clear(); lista.forEach(l => bySlug.set(l.slug, l)); };
   const $ = (id: string) => document.getElementById(id)!;
 
   function open(slug: string, push = true) {
@@ -46,7 +47,7 @@ const dados = livros.map(l => ({ ...l, genreLabel: generos[l.genre] ?? '' }));
     $('sheet-synopsis').textContent = l.synopsis || '';
     $('sheet-synopsis').hidden = !l.synopsis;
     const read = $('sheet-read') as HTMLAnchorElement, buy = $('sheet-buy') as HTMLAnchorElement;
-    read.hidden = !l.wattpadLink || !!l.rascunho; if (l.wattpadLink) read.href = l.wattpadLink;
+    read.hidden = !l.wattpadLink || l.status === 'revisao'; if (l.wattpadLink) read.href = l.wattpadLink;
     buy.hidden = !l.amazonLink; if (l.amazonLink) buy.href = l.amazonLink;
     $('sheet-toast').textContent = '';
     if (!sheet.open) sheet.showModal();

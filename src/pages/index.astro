@@ -15,25 +15,25 @@ const rows = fileiras();
 <BaseLayout title="Editora indie multigênero">
   <div class="app-page">
     <section class="container feature" aria-label="Destaque">
-      <div class="feature-bg" aria-hidden="true"><img src={destaque.cover} alt="" /></div>
-      <button type="button" class="feature-cover" data-slug={destaque.slug} aria-label={`Detalhes de ${destaque.title}`}>
-        <img src={destaque.cover} alt={`Capa de ${destaque.title}`} />
+      <div class="feature-bg" aria-hidden="true"><img id="f-bg" src={destaque.cover} alt="" /></div>
+      <button type="button" class="feature-cover" id="f-cover" data-slug={destaque.slug} aria-label={`Detalhes de ${destaque.title}`}>
+        <img id="f-cover-img" src={destaque.cover} alt={`Capa de ${destaque.title}`} />
       </button>
       <div class="feature-info">
-        <p class="feature-kicker">Novo para ler{destaque.series ? ` · série com ${volumesSerie} volumes` : ''}</p>
-        <h1 class="feature-title">{destaque.title}</h1>
-        <div class="sheet-chips"><span class="chip">{generos[destaque.genre]}</span></div>
+        <p class="feature-kicker" id="f-kicker">Novo para ler{destaque.series ? ` · série com ${volumesSerie} volumes` : ''}</p>
+        <h1 class="feature-title" id="f-title">{destaque.title}</h1>
+        <div class="sheet-chips"><span class="chip" id="f-genre">{generos[destaque.genre]}</span></div>
         <div class="feature-actions">
-          {destaque.wattpadLink && !destaque.rascunho && (
-            <a href={destaque.wattpadLink} target="_blank" rel="noopener" class="icon-btn icon-btn-main" aria-label="Ler no Wattpad" title="Ler no Wattpad"><Icon name="play" size={22} /></a>
+          {destaque.wattpadLink && destaque.status !== 'revisao' && (
+            <a href={destaque.wattpadLink} id="f-read" target="_blank" rel="noopener" class="icon-btn icon-btn-main" aria-label="Ler no Wattpad" title="Ler no Wattpad"><Icon name="play" size={22} /></a>
           )}
-          <button type="button" class="icon-btn" data-slug={destaque.slug} aria-label="Detalhes" title="Detalhes"><Icon name="info" size={22} /></button>
+          <button type="button" class="icon-btn" id="f-info" data-slug={destaque.slug} aria-label="Detalhes" title="Detalhes"><Icon name="info" size={22} /></button>
           <a href="/acervo" class="icon-btn" aria-label="Acervo completo" title="Acervo completo"><Icon name="layers" size={22} /></a>
         </div>
       </div>
     </section>
 
-    <div class="container rows">
+    <div class="container rows" id="rows">
       <BookRow title="Novos para ler" books={lancamentos()} big />
       <BookRow title="Mais lidos" books={maisLidos()} big />
       <BookRow title="Em breve · em revisão" books={emRevisao()} />
@@ -58,3 +58,23 @@ const rows = fileiras();
 
   <BookSheet />
 </BaseLayout>
+
+<script>
+  import { atualizar, fileiras, fileira, destaque } from '../scripts/acervo-vivo';
+  const GEN: Record<string, string> = { romantasy: 'Dark Romantasy', 'fantasy-eastern': 'Fantasia Oriental', scifi: 'Ficção Científica', steampunk: 'Steampunk', romance: 'Romance', nonfiction: 'Não-ficção', fanfic: 'Fanfics' };
+  atualizar((ls) => {
+    document.getElementById('rows')!.innerHTML = fileiras(ls).map(fileira).join('');
+    const d = destaque(ls);
+    if (!d) return;
+    const vols = d.series ? ls.filter(l => l.series === d.series).length : 0;
+    (document.getElementById('f-bg') as HTMLImageElement).src = d.cover;
+    (document.getElementById('f-cover-img') as HTMLImageElement).src = d.cover;
+    document.getElementById('f-cover')!.dataset.slug = d.slug;
+    document.getElementById('f-info')!.dataset.slug = d.slug;
+    document.getElementById('f-title')!.textContent = d.title;
+    document.getElementById('f-genre')!.textContent = GEN[d.genre] ?? '';
+    document.getElementById('f-kicker')!.textContent = 'Novo para ler' + (d.series ? ` · série com ${vols} volumes` : '');
+    const read = document.getElementById('f-read') as HTMLAnchorElement | null;
+    if (read) { read.hidden = !d.wattpadLink || d.status === 'revisao'; if (d.wattpadLink) read.href = d.wattpadLink; }
+  });
+</script>

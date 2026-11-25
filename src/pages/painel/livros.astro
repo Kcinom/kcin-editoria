@@ -1,0 +1,335 @@
+---
+// Painel dos livros — só a Kcinom acessa (login + regras do banco).
+// Aqui ela adiciona, edita e esconde livros; o site mostra na hora.
+import '../../styles/global.css';
+import { SUPABASE_URL, SUPABASE_KEY } from '../../lib/atelier-config.js';
+import { generos } from '../../data/livros';
+---
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>Meus livros | Painel KCIN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Lora:wght@400;600&display=swap" />
+</head>
+<body>
+  <main class="pl">
+    <header class="pl-top">
+      <h1 class="pl-title">Meus livros</h1>
+      <nav class="pl-nav">
+        <a href="/" class="pl-ico" title="Ver o site" aria-label="Ver o site"><svg viewBox="0 0 24 24"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></a>
+        <a href="/painel" class="pl-ico" title="Fichas do Atelier" aria-label="Fichas do Atelier"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg></a>
+        <button id="sair" class="pl-ico" title="Sair" aria-label="Sair" hidden><svg viewBox="0 0 24 24"><path d="M15 4h4v16h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/></svg></button>
+      </nav>
+    </header>
+
+    <!-- ENTRAR / CRIAR CONTA -->
+    <section id="login" class="pl-box" hidden>
+      <h2 id="login-titulo">Entrar</h2>
+      <form id="login-form" class="col">
+        <label class="campo"><span>E-mail</span><input type="email" id="login-email" required autocomplete="email" /></label>
+        <label class="campo"><span>Senha</span><input type="password" id="login-senha" required minlength="8" autocomplete="current-password" /></label>
+        <button class="pl-btn" type="submit" id="login-btn">Entrar</button>
+        <button class="pl-link" type="button" id="trocar">Primeiro acesso? Criar minha conta</button>
+        <p class="msg" id="login-msg" role="status"></p>
+      </form>
+    </section>
+
+    <section id="sem-acesso" class="pl-box" hidden>
+      <p>Você entrou, mas esta conta não é administradora.</p>
+      <p class="mini">ID da conta: <code id="meu-id"></code></p>
+    </section>
+
+    <!-- LISTA -->
+    <section id="area" hidden>
+      <div class="pl-bar">
+        <input type="search" id="busca" placeholder="Buscar livro…" aria-label="Buscar livro" />
+        <button class="pl-btn pl-add" id="novo" title="Adicionar livro"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Novo livro</button>
+      </div>
+      <p class="msg" id="lista-msg" role="status"></p>
+      <div id="lista" class="pl-grid"></div>
+    </section>
+  </main>
+
+  <!-- FORMULÁRIO -->
+  <dialog id="dlg" class="pl-dlg">
+    <form id="f" class="pl-form" method="dialog">
+      <header class="dlg-top">
+        <h2 id="f-titulo">Novo livro</h2>
+        <button type="button" class="pl-ico" id="fechar" aria-label="Fechar" title="Fechar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </header>
+      <div class="f-grid">
+        <div class="f-capa">
+          <label class="capa-drop" title="Escolher capa">
+            <img id="capa-prev" alt="" hidden />
+            <span id="capa-vazia">Toque para escolher a capa</span>
+            <input type="file" id="capa-arq" accept="image/jpeg,image/png,image/webp" hidden />
+          </label>
+          <p class="mini">JPG, PNG ou WEBP. Eu deixo leve sozinha.</p>
+        </div>
+        <div class="col">
+          <label class="campo"><span>Título *</span><input name="title" required /></label>
+          <label class="campo"><span>Subtítulo</span><input name="subtitle" /></label>
+          <div class="dupla">
+            <label class="campo"><span>Gênero *</span>
+              <select name="genre" required>
+                {Object.entries(generos).map(([v, l]) => <option value={v}>{l}</option>)}
+              </select>
+            </label>
+            <label class="campo"><span>Situação</span>
+              <select name="status">
+                <option value="publicado">Publicado</option>
+                <option value="revisao">Em revisão (em breve)</option>
+                <option value="oculto">Escondido do site</option>
+              </select>
+            </label>
+          </div>
+          <div class="dupla">
+            <label class="campo"><span>Série</span><input name="series" list="series-lista" placeholder="deixe vazio se for livro único" /></label>
+            <label class="campo"><span>Volume</span><input name="volume" type="number" min="1" step="1" /></label>
+          </div>
+          <datalist id="series-lista"></datalist>
+          <label class="campo"><span>Link do Wattpad</span><input name="wattpad_link" type="url" placeholder="https://www.wattpad.com/story/..." /></label>
+          <label class="campo"><span>Link da Amazon</span><input name="amazon_link" type="url" placeholder="https://..." /></label>
+          <div class="dupla">
+            <label class="campo"><span>Leituras</span><input name="leituras" type="number" min="0" step="1" /></label>
+            <label class="campo"><span>Lançado em</span><input name="lancado_em" type="date" /></label>
+          </div>
+          <label class="campo"><span>Sinopse</span><textarea name="synopsis" rows="5"></textarea></label>
+        </div>
+      </div>
+      <footer class="dlg-acoes">
+        <button type="button" class="pl-ico pl-perigo" id="apagar" title="Apagar livro" aria-label="Apagar livro" hidden><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button>
+        <p class="msg" id="f-msg" role="status"></p>
+        <button type="submit" class="pl-btn" id="salvar">Salvar</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <script define:vars={{ SUPABASE_URL, SUPABASE_KEY, GENEROS: generos }}>
+    (async () => {
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.45.4');
+    const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+    const $ = (id) => document.getElementById(id);
+    const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const STATUS = { publicado: 'Publicado', revisao: 'Em revisão', oculto: 'Escondido' };
+
+    let livros = [];
+    let editando = null;     // livro em edição (ou null para novo)
+    let capaArquivo = null;  // Blob da capa nova
+    let criando = false;     // modo "criar conta"
+
+    function mostrar(secao) {
+      for (const id of ['login', 'sem-acesso', 'area']) $(id).hidden = id !== secao;
+      $('sair').hidden = secao === 'login';
+    }
+
+    async function iniciar() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return mostrar('login');
+      await entrar(session.user);
+    }
+
+    async function entrar(user) {
+      const { data } = await sb.from('atelier_admins').select('user_id').eq('user_id', user.id).maybeSingle();
+      if (!data) { $('meu-id').textContent = user.id; return mostrar('sem-acesso'); }
+      mostrar('area');
+      await carregar();
+    }
+
+    async function carregar() {
+      $('lista-msg').textContent = 'Carregando…';
+      const { data, error } = await sb.from('livros').select('*').order('ordem', { ascending: true });
+      if (error) { $('lista-msg').textContent = 'Não consegui carregar: ' + error.message; return; }
+      livros = data;
+      $('lista-msg').textContent = '';
+      $('series-lista').innerHTML = [...new Set(livros.map(l => l.series).filter(Boolean))].map(s => `<option value="${esc(s)}">`).join('');
+      desenhar();
+    }
+
+    function desenhar() {
+      const q = $('busca').value.trim().toLowerCase();
+      const vis = livros.filter(l => !q || `${l.title} ${l.subtitle ?? ''} ${l.series ?? ''}`.toLowerCase().includes(q));
+      $('lista').innerHTML = vis.map(l => `
+        <button class="pl-card" data-id="${l.id}" title="Editar ${esc(l.title)}">
+          <img src="${esc(l.cover)}" alt="" loading="lazy" />
+          <span class="pl-st" data-s="${l.status}">${STATUS[l.status]}</span>
+          <span class="pl-nome">${esc(l.title)}${l.subtitle ? `<small>${esc(l.subtitle)}</small>` : ''}</span>
+          <span class="pl-meta">${esc(l.series ? `${l.series} · vol. ${l.volume ?? '?'}` : (GENEROS[l.genre] ?? ''))}</span>
+        </button>`).join('') || '<p class="msg">Nenhum livro encontrado.</p>';
+    }
+
+    // ---------- formulário ----------
+    const f = $('f');
+    function abrir(l) {
+      editando = l; capaArquivo = null; f.reset(); $('f-msg').textContent = '';
+      $('f-titulo').textContent = l ? 'Editar livro' : 'Novo livro';
+      $('apagar').hidden = !l;
+      if (l) { for (const el of f.elements) { if (el.name) el.value = l[el.name] ?? ''; } }
+      else { f.elements.status.value = 'publicado'; f.elements.lancado_em.value = new Date().toISOString().slice(0, 10); }
+      const prev = $('capa-prev');
+      prev.hidden = !l?.cover; $('capa-vazia').hidden = !!l?.cover;
+      if (l?.cover) prev.src = l.cover;
+      $('dlg').showModal();
+    }
+    $('novo').onclick = () => abrir(null);
+    $('lista').onclick = (e) => { const c = e.target.closest('.pl-card'); if (c) abrir(livros.find(l => l.id === c.dataset.id)); };
+    $('fechar').onclick = () => $('dlg').close();
+    $('busca').oninput = desenhar;
+
+    // Capa: reduz para 900px de altura em JPG (fica leve no site)
+    $('capa-arq').onchange = async (e) => {
+      const arq = e.target.files?.[0]; if (!arq) return;
+      if (arq.size > 15 * 1024 * 1024) { $('f-msg').textContent = 'Imagem grande demais (máx. 15 MB).'; return; }
+      const img = await createImageBitmap(arq);
+      const h = Math.min(900, img.height), w = Math.round(img.width * h / img.height);
+      const cv = Object.assign(document.createElement('canvas'), { width: w, height: h });
+      cv.getContext('2d').drawImage(img, 0, 0, w, h);
+      capaArquivo = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.86));
+      $('capa-prev').src = URL.createObjectURL(capaArquivo);
+      $('capa-prev').hidden = false; $('capa-vazia').hidden = true;
+    };
+
+    const slugify = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
+
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const v = Object.fromEntries(new FormData(f));
+      if (!editando && !capaArquivo) { $('f-msg').textContent = 'Escolha a capa do livro.'; return; }
+      $('salvar').disabled = true; $('f-msg').textContent = 'Salvando…';
+      try {
+        let slug = editando?.slug;
+        if (!slug) {
+          slug = slugify(`${v.title} ${v.subtitle || ''}`) || 'livro';
+          if (livros.some(l => l.slug === slug)) slug += '-' + Date.now().toString(36).slice(-4);
+        }
+        let cover = editando?.cover;
+        if (capaArquivo) {
+          const caminho = `${slug}-${Date.now().toString(36)}.jpg`;
+          const up = await sb.storage.from('capas').upload(caminho, capaArquivo, { contentType: 'image/jpeg', cacheControl: '31536000' });
+          if (up.error) throw up.error;
+          cover = sb.storage.from('capas').getPublicUrl(caminho).data.publicUrl;
+        }
+        const nulo = (x) => (x === '' || x == null ? null : x);
+        const linha = {
+          slug, cover, title: v.title.trim(), subtitle: nulo(v.subtitle?.trim()), genre: v.genre, status: v.status,
+          series: nulo(v.series?.trim()), volume: v.volume ? Number(v.volume) : null,
+          wattpad_link: nulo(v.wattpad_link?.trim()), amazon_link: nulo(v.amazon_link?.trim()),
+          synopsis: nulo(v.synopsis?.trim()), leituras: v.leituras ? Number(v.leituras) : 0, lancado_em: nulo(v.lancado_em),
+        };
+        const res = editando
+          ? await sb.from('livros').update(linha).eq('id', editando.id)
+          : await sb.from('livros').insert({ ...linha, ordem: Math.max(0, ...livros.map(l => l.ordem ?? 0)) + 1 });
+        if (res.error) throw res.error;
+        $('dlg').close();
+        await carregar();
+        $('lista-msg').textContent = editando ? 'Livro atualizado. Já aparece no site.' : 'Livro adicionado. Já aparece no site.';
+      } catch (err) {
+        $('f-msg').textContent = 'Não salvou: ' + (err.message || err);
+      } finally { $('salvar').disabled = false; }
+    });
+
+    $('apagar').onclick = async () => {
+      if (!editando) return;
+      if (!confirm(`Apagar "${editando.title}" de vez? (Para só tirar do site, use a situação "Escondido".)`)) return;
+      const { error } = await sb.from('livros').delete().eq('id', editando.id);
+      if (error) { $('f-msg').textContent = 'Não apagou: ' + error.message; return; }
+      $('dlg').close(); await carregar(); $('lista-msg').textContent = 'Livro apagado.';
+    };
+
+    // ---------- login ----------
+    $('trocar').onclick = () => {
+      criando = !criando;
+      $('login-titulo').textContent = criando ? 'Criar minha conta' : 'Entrar';
+      $('login-btn').textContent = criando ? 'Criar conta' : 'Entrar';
+      $('trocar').textContent = criando ? 'Já tenho conta. Entrar' : 'Primeiro acesso? Criar minha conta';
+      $('login-senha').autocomplete = criando ? 'new-password' : 'current-password';
+      $('login-msg').textContent = criando ? 'Use uma senha forte (8+ caracteres).' : '';
+    };
+    $('login-form').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const email = $('login-email').value, password = $('login-senha').value;
+      $('login-msg').textContent = criando ? 'Criando conta…' : 'Entrando…';
+      if (criando) {
+        const { data, error } = await sb.auth.signUp({ email, password, options: { emailRedirectTo: location.href } });
+        if (error) { $('login-msg').textContent = 'Não deu: ' + error.message; return; }
+        if (!data.session) { $('login-msg').textContent = 'Conta criada! Abra o e-mail de confirmação que chegou e depois entre aqui.'; return; }
+        return entrar(data.user);
+      }
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) { $('login-msg').textContent = 'E-mail ou senha incorretos (ou e-mail ainda não confirmado).'; return; }
+      $('login-msg').textContent = '';
+      await entrar(data.user);
+    });
+    $('sair').onclick = async () => { await sb.auth.signOut(); livros = []; mostrar('login'); };
+
+    iniciar();
+    })();
+  </script>
+
+  <style>
+    body { background: radial-gradient(ellipse at top, #24173d, #0d0816 70%); min-height: 100vh; }
+    .pl { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1rem 5rem; }
+    .pl-top { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+    .pl-title { font-size: 1.6rem; margin: 0; }
+    .pl-nav { display: flex; gap: .5rem; }
+    .pl-ico { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; border: 1px solid rgba(212,165,116,.35);
+      background: rgba(255,255,255,.06); backdrop-filter: blur(12px); color: var(--kcin-gold-light); cursor: pointer; }
+    .pl-ico svg, .pl-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .pl-ico:hover, .pl-ico:focus-visible { background: rgba(212,165,116,.18); }
+    .pl-perigo { color: #f0a4a4; border-color: rgba(240,164,164,.4); }
+    .pl-box { max-width: 400px; margin: 3rem auto; padding: 1.75rem; border: 1px solid rgba(212,165,116,.3); border-radius: 18px; background: rgba(255,255,255,.05); backdrop-filter: blur(16px); }
+    .pl-box h2 { font-size: 1.3rem; margin: 0 0 1rem; }
+    .col { display: flex; flex-direction: column; gap: .8rem; }
+    .dupla { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+    .campo { display: flex; flex-direction: column; gap: .3rem; }
+    .campo span, .mini { font-family: var(--font-display); font-size: .7rem; letter-spacing: .08em; color: var(--kcin-gold); }
+    .campo input, .campo select, .campo textarea, #busca {
+      font-family: var(--font-serif); font-size: 1rem; padding: .55rem .75rem; width: 100%; box-sizing: border-box;
+      background: rgba(10,6,18,.55); border: 1px solid rgba(212,165,116,.3); color: var(--kcin-parchment); border-radius: 10px; }
+    .campo textarea { resize: vertical; }
+    .pl-btn { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; font-family: var(--font-display); font-size: .8rem; letter-spacing: .06em;
+      padding: .7rem 1.2rem; border-radius: 100px; border: 0; background: var(--kcin-gold); color: #160d22; cursor: pointer; }
+    .pl-btn:disabled { opacity: .6; cursor: wait; }
+    .pl-link { background: none; border: 0; color: var(--kcin-gold-light); font-family: var(--font-serif); text-decoration: underline; cursor: pointer; padding: 0; }
+    .msg { font-family: var(--font-serif); color: var(--kcin-gold-light); margin: 0; min-height: 1.2em; }
+    code { font-size: .85em; color: var(--kcin-gold-light); word-break: break-all; }
+
+    .pl-bar { display: flex; gap: .6rem; margin-bottom: 1rem; }
+    .pl-bar #busca { flex: 1; border-radius: 100px; padding-inline: 1rem; }
+    .pl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .pl-card { position: relative; display: flex; flex-direction: column; gap: .3rem; padding: 0; background: none; border: 0; text-align: left; cursor: pointer; color: var(--kcin-parchment); }
+    .pl-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,.4); transition: transform .2s; }
+    .pl-card:hover img, .pl-card:focus-visible img { transform: translateY(-3px); }
+    .pl-nome { font-family: var(--font-serif); font-size: .9rem; line-height: 1.25; }
+    .pl-nome small { display: block; color: var(--kcin-ash); }
+    .pl-meta { font-size: .72rem; color: var(--kcin-gold); }
+    .pl-st { position: absolute; top: 6px; left: 6px; font-size: .65rem; padding: .15rem .5rem; border-radius: 100px; background: rgba(20,12,32,.8); color: #bfe6c4; backdrop-filter: blur(6px); }
+    .pl-st[data-s="revisao"] { color: #f3d79a; }
+    .pl-st[data-s="oculto"] { color: #c9c3d3; }
+
+    .pl-dlg { width: min(860px, 96vw); max-height: 94vh; padding: 0; border: 1px solid rgba(212,165,116,.3); border-radius: 20px; background: #1a1129; color: var(--kcin-parchment); }
+    .pl-dlg::backdrop { background: rgba(5,3,10,.7); backdrop-filter: blur(4px); }
+    .pl-form { padding: 1.25rem; }
+    .dlg-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .dlg-top h2 { font-size: 1.25rem; margin: 0; }
+    .f-grid { display: grid; grid-template-columns: 200px 1fr; gap: 1.25rem; }
+    .capa-drop { display: grid; place-items: center; aspect-ratio: 2/3; border: 1.5px dashed rgba(212,165,116,.45); border-radius: 12px; cursor: pointer; overflow: hidden; text-align: center; padding: .5rem; color: var(--kcin-ash); font-family: var(--font-serif); }
+    .capa-drop img { width: 100%; height: 100%; object-fit: cover; }
+    .capa-drop:has(img:not([hidden])) { padding: 0; border-style: solid; }
+    .dlg-acoes { display: flex; align-items: center; gap: 1rem; margin-top: 1.25rem; }
+    .dlg-acoes .msg { flex: 1; }
+    @media (max-width: 640px) {
+      .f-grid { grid-template-columns: 1fr; }
+      .f-capa { max-width: 170px; margin: 0 auto; }
+      .pl-grid { grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); }
+      .pl-add { padding: .7rem; }
+    }
+  </style>
+</body>
+</html>
