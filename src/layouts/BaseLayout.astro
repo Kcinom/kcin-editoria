@@ -237,6 +237,7 @@ const navItems = [
       tabbar.dataset.hasActive = 'true';
       tabbar.querySelectorAll('.tab').forEach(x => x.removeAttribute('aria-current'));
       t.setAttribute('aria-current', 'page');
+      tabbar.classList.remove('moving'); void tabbar.offsetWidth; tabbar.classList.add('moving');
       tabbar.style.setProperty('--i', t.dataset.idx || '0');
       setTimeout(() => { location.href = t.href; }, 320);
     });
@@ -250,6 +251,7 @@ const navItems = [
       rail.dataset.hasActive = 'true';
       rail.querySelectorAll('.rail-item').forEach(x => x.removeAttribute('aria-current'));
       t.setAttribute('aria-current', 'page');
+      rail.classList.remove('moving'); void rail.offsetWidth; rail.classList.add('moving');
       rail.style.setProperty('--i', t.dataset.idx || '0');
       setTimeout(() => { location.href = t.href; }, 320);
     });
